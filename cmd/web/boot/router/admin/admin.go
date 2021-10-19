@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"fmt"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/core/router"
 	"github.com/kataras/iris/v12/mvc"
@@ -18,10 +17,8 @@ func InitRouter(app *iris.Application) {
 	// 使用SESSION
 	app.Use(session.NewSessionStore())
 	// 使用VIEW模板
-	fmt.Println(http.FS(conf.EmbedRoot))
 	templatesFS := iris.PrefixDir("./views", http.FS(conf.EmbedRoot))
 	app.RegisterView(iris.HTML(templatesFS, ".html"))
-	fmt.Println("初始化路由")
 	// 免登陆的路由
 	app.PartyFunc("/admin", func(p router.Party) {
 		p.Get("/", admin.Main)
