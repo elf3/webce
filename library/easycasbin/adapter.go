@@ -25,7 +25,7 @@ func InitAdapter() (*casbin.SyncedEnforcer, error) {
 	if err != nil {
 		return nil, fmt.Errorf("can not Init: %v", err.Error())
 	}
-	e, err := casbin.NewSyncedEnforcer("./conf/rbac_model.conf", a)
+	e, err := casbin.NewSyncedEnforcer("./configs/rbac_model.conf", a)
 	if err != nil {
 		return nil, fmt.Errorf("can not Init: %v", err.Error())
 	}
