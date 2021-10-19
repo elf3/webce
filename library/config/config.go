@@ -42,7 +42,6 @@ func (c *Config) initConfig() error {
 	if err := viper.ReadInConfig(); err != nil {
 		return err
 	}
-
 	return nil
 }
 
