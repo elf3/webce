@@ -39,7 +39,7 @@ func (a AdminUserRepository) Login(username, pass string) *apgs.Response {
 	return apgs.ApiReturn(0, "", a.Admin)
 }
 
-func (a AdminUserRepository) AddAdmin(admin admins.Admin, roleIds []int64) *apgs.Response {
+func (a AdminUserRepository) AddAdmin(admin *admins.Admin, roleIds []int64) *apgs.Response {
 	create, err := admin.Create(roleIds)
 	if err != nil {
 		log.Log.Error("create admin err: ", err.Error())

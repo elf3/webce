@@ -9,15 +9,11 @@ require (
 	github.com/casbin/gorm-adapter/v3 v3.4.4
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fsnotify/fsnotify v1.4.9
-	github.com/go-playground/universal-translator v0.18.0 // indirect
+	github.com/go-playground/validator/v10 v10.9.0
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/iris-contrib/middleware/jwt v0.0.0-20210110101738-6d0a4d799b5d
-	github.com/jonboulle/clockwork v0.2.2 // indirect
 	github.com/kataras/iris/v12 v12.2.0-alpha2
-	github.com/leodido/go-urn v1.2.1 // indirect
-	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
-	github.com/lestrrat-go/strftime v1.0.5 // indirect
 	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/nats-io/nats-server/v2 v2.6.2 // indirect
 	github.com/pkg/errors v0.8.1

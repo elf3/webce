@@ -2,8 +2,8 @@ package admins
 
 import (
 	"fmt"
+	"github.com/go-playground/validator/v10"
 	"github.com/pkg/errors"
-	"gopkg.in/go-playground/validator.v9"
 	"gorm.io/gorm"
 	"webce/apis/repositories/models"
 	"webce/library/databases"
@@ -13,13 +13,12 @@ import (
 // Admin 管理员
 type Admin struct {
 	models.BaseModel
-	Username string `gorm:"type:char(50); unique_index;not null;"  validate:"min=6,max=32"`
+	Username string `gorm:"type:char(50); unique_index;not null;"  validate:"min=6,max=32" form:"username" json:"username"`
 	// 设置管理员账号 唯一并且不为空
-	Password    string `gorm:"size:255;not null;"  `     // 设置字段大小为255
-	LastLoginIp uint32 `gorm:"type:int(1);not null;"`    // 上次登录IP
-	IsSuper     int    `gorm:"type:tinyint(1);not null"` // 是否超级管理员
-
-	Roles []Roles `json:"roles" gorm:"many2many:admin_role;not null;"`
+	Password    string  `gorm:"size:255;not null;" form:"password" json:"password" ` // 设置字段大小为255
+	LastLoginIp uint32  `gorm:"type:int(1);not null;" json:"last_login_ip"`          // 上次登录IP
+	IsSuper     int     `gorm:"type:tinyint(1);not null" json:"is_super"`            // 是否超级管理员
+	Roles       []Roles `gorm:"many2many:admin_role;not null;" json:"roles"`         // 角色
 }
 
 // Validate the fields.

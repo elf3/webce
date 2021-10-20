@@ -2,8 +2,10 @@ package admin
 
 import (
 	"github.com/kataras/iris/v12"
+	"webce/apis/repositories/models/admins"
 	"webce/apis/repositories/repo/adminrepo"
 	"webce/library/apgs"
+	"webce/library/log"
 )
 
 type Manager struct {
@@ -37,7 +39,21 @@ func (g *Manager) GetTest() {
 
 func (g *Manager) GetTest2() {
 	repo := adminrepo.NewAdminUserRepository()
-	adminresp := repo.AddAdmin()
+	admin := &admins.Admin{}
+	err := g.Ctx.ReadForm(admin)
+	if err != nil {
+		g.Ctx.JSON(apgs.ApiReturn(400, err.Error(), nil))
+		return
+	}
+	err = admin.Validate()
+	if err != nil {
+		log.Log.Error("error to get params: ", err.Error())
+		g.Ctx.JSON(apgs.ApiReturn(400, "invalid request", nil))
+
+		return
+	}
+
+	adminresp := repo.AddAdmin(admin, []int64{1})
 	g.Ctx.JSON(adminresp)
 }
 
