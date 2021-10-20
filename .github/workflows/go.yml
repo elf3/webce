@@ -10,7 +10,6 @@ on:
 env:
   GO_VERSION: 1.17.1
   GOLANGCI_LINT_VERSION: v1.42.1
-  CODECOV_TOKEN: "940e1115-20c8-4e9b-955d-5c67b4c76f0d"
 jobs:
   golangci:
     strategy:
@@ -37,10 +36,13 @@ jobs:
       uses: actions/setup-go@v2
       with:
         go-version: "${{ env.GO_VERSION }}"
+        
     - name: Run coverage
       run: go test -race -coverprofile=coverage.out -covermode=atomic ./...
+
     - name: Upload coverage to Codecov
-      run: bash <(curl -s https://codecov.io/bash) -t
+      run: bash <(curl -s https://codecov.io/bash)
+
     - name: Build
       run: go build -v ./...
 
