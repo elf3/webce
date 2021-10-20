@@ -1,8 +1,8 @@
 package admins
 
 import (
-	"errors"
 	"fmt"
+	"github.com/pkg/errors"
 	"gopkg.in/go-playground/validator.v9"
 	"gorm.io/gorm"
 	"webce/apis/repositories/models"
@@ -63,12 +63,15 @@ func (u Admin) GetById(id int) (Admin, error) {
 }
 
 // Create 创建记录
-func (u Admin) Create(data map[string]interface{}) (*Admin, error) {
-	var role = make([]Roles, 10)
-	databases.DB.Where("id in (?)", data["role_id"]).Find(&role)
-	create := databases.DB.Model(&u).Create(&u).Association("Roles").Append(role).Error()
-	if create != "" {
-		return nil, errors.New("测试")
+func (u Admin) Create(roleIds []int64) (*Admin, error) {
+	var role = make([]Roles, 0)
+	find := databases.DB.Where("id in (?)", roleIds).Find(&role)
+	if find.Error != nil || find.RowsAffected == 0 {
+		return nil, errors.New("角色未初始化")
+	}
+	create := databases.DB.Model(&u).Create(&u).Association("Roles").Append(role)
+	if create != nil {
+		return nil, errors.Wrap(create, "创建管理员失败，请重试")
 	}
 	return &u, nil
 }

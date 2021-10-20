@@ -4,6 +4,7 @@ import (
 	"webce/apis/repositories/models/admins"
 	"webce/library/apgs"
 	"webce/library/databases"
+	"webce/library/log"
 	"webce/library/password"
 	"webce/library/repository"
 )
@@ -36,4 +37,13 @@ func (a AdminUserRepository) Login(username, pass string) *apgs.Response {
 	}
 	a.Admin.Password = ""
 	return apgs.ApiReturn(0, "", a.Admin)
+}
+
+func (a AdminUserRepository) AddAdmin(admin admins.Admin, roleIds []int64) *apgs.Response {
+	create, err := admin.Create(roleIds)
+	if err != nil {
+		log.Log.Error("create admin err: ", err.Error())
+		return apgs.ApiReturn(400, "create admin err", nil)
+	}
+	return apgs.ApiReturn(200, "", create)
 }

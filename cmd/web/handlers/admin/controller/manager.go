@@ -17,7 +17,7 @@ func NewManager() *Manager {
 	}
 }
 
-func (g *Manager) getTest() {
+func (g *Manager) GetTest() {
 	where := make(map[string]interface{})
 	where["id"] = 1
 	users1 := g.Repo.Select(where)
@@ -33,6 +33,12 @@ func (g *Manager) getTest() {
 	//	"Users":  users,
 	//	"Users1": users1,
 	//}))
+}
+
+func (g *Manager) GetTest2() {
+	repo := adminrepo.NewAdminUserRepository()
+	adminresp := repo.AddAdmin()
+	g.Ctx.JSON(adminresp)
 }
 
 func (g *Manager) Get() {
