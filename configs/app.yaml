@@ -25,7 +25,7 @@ db:
   pass: Root_123123
   native: true
   debug: 4 # 1 Silent、2Error、3Warn、4Info
-  prefix: wk_
+  prefix: w_
 
 redis:
   host: 127.0.0.1
