@@ -18,6 +18,7 @@ require (
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/lestrrat-go/strftime v1.0.5 // indirect
+	github.com/natefinch/lumberjack v2.0.0+incompatible
 	github.com/nats-io/nats-server/v2 v2.6.2 // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/sergi/go-diff v1.2.0 // indirect
@@ -29,6 +30,7 @@ require (
 	golang.org/x/net v0.0.0-20210510120150-4163338589ed // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.31.0
+	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 	gorm.io/driver/mysql v1.1.2
 	gorm.io/gorm v1.21.16
 )

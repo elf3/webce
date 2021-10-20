@@ -10,6 +10,7 @@ import (
 	"webce/cmd/web/middle"
 	"webce/library/config"
 	"webce/library/databases"
+	"webce/library/log"
 )
 
 func InitRouter() *iris.Application {
@@ -17,10 +18,10 @@ func InitRouter() *iris.Application {
 	if errConf != nil {
 		panic(errConf)
 	}
-	config.InitLogger(config.LogConfig{
-		Level: "",
-		Path:  "./",
-		Save:  1,
+	log.InitLogger(log.LogConfig{
+		Level:   "",
+		Path:    "./",
+		MaxSize: 1,
 	})
 	app := iris.New()
 	app.Use(middle.LoggerHandler)
