@@ -1,11 +1,10 @@
 package log
 
 import (
-	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
+	//rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/natefinch/lumberjack"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"io"
 	"os"
 	"path"
 	"time"
@@ -53,19 +52,19 @@ func getEncoder() zapcore.Encoder {
 	return zapcore.NewConsoleEncoder(encoderConfig)
 }
 
-func getRoTateLogWriter(logPath, level string, maxSize uint) io.Writer {
-	logFullPath := path.Join(logPath, level)
-	hook, err := rotatelogs.New(
-		logFullPath+".%Y%m%d%H.log",                 // 没有使用go风格反人类的format格式
-		rotatelogs.WithLinkName(logFullPath+".log"), // 生成软链，指向最新日志文件
-		rotatelogs.WithRotationCount(maxSize),       // 文件最大保存份数
-		rotatelogs.WithRotationTime(24*time.Hour),   // 日志切割时间间隔
-	)
-	if err != nil {
-		panic(err)
-	}
-	return hook
-}
+//func getRoTateLogWriter(logPath, level string, maxSize uint) io.Writer {
+//	logFullPath := path.Join(logPath, level)
+//	hook, err := rotatelogs.New(
+//		logFullPath+".%Y%m%d%H.log",                 // 没有使用go风格反人类的format格式
+//		rotatelogs.WithLinkName(logFullPath+".log"), // 生成软链，指向最新日志文件
+//		rotatelogs.WithRotationCount(maxSize),       // 文件最大保存份数
+//		rotatelogs.WithRotationTime(24*time.Hour),   // 日志切割时间间隔
+//	)
+//	if err != nil {
+//		panic(err)
+//	}
+//	return hook
+//}
 
 func getLogWriter(logPath, level string, maxSize uint) zapcore.WriteSyncer {
 	lumberJackLogger := &lumberjack.Logger{
