@@ -1,4 +1,4 @@
-package admin
+package login
 
 import (
 	"github.com/kataras/iris/v12"
@@ -14,8 +14,8 @@ func Main(ctx iris.Context) {
 }
 
 func Login(ctx iris.Context) {
-	username := ctx.PostValueDefault("username", "123")
-	password := ctx.PostValueDefault("password", "123")
+	username := ctx.PostValueDefault("username", "")
+	password := ctx.PostValueDefault("password", "")
 	addr := ctx.RemoteAddr()
 	auth := services.AdminAuth{}
 	login := auth.Login(username, password, addr)

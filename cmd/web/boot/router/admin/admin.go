@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"webce/cmd/web/conf"
 	admin "webce/cmd/web/handlers/admin/controller"
+	"webce/cmd/web/handlers/admin/controller/login"
 	"webce/cmd/web/middle"
 	"webce/library/easycasbin"
 	"webce/library/session"
@@ -21,9 +22,9 @@ func InitRouter(app *iris.Application) {
 	app.RegisterView(iris.HTML(templatesFS, ".html"))
 	// 免登陆的路由
 	app.PartyFunc("/admin", func(p router.Party) {
-		p.Get("/", admin.Main)
-		p.Get("/login", admin.Login)
-		p.Post("/login", admin.Login)
+		p.Get("/", login.Main)
+		p.Get("/login", login.Login)
+		p.Post("/login", login.Login)
 	})
 
 	// 使用中间件认证

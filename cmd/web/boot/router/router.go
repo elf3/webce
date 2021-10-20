@@ -7,6 +7,7 @@ import (
 	"webce/apis/migrate"
 	"webce/cmd/web/boot/router/admin"
 	"webce/cmd/web/boot/router/api"
+	"webce/cmd/web/middle"
 	"webce/library/config"
 	"webce/library/databases"
 )
@@ -16,12 +17,18 @@ func InitRouter() *iris.Application {
 	if errConf != nil {
 		panic(errConf)
 	}
-	databases.InitDB()
-
+	config.InitLogger(config.LogConfig{
+		Level: "",
+		Path:  "./",
+		Save:  1,
+	})
 	app := iris.New()
+	app.Use(middle.LoggerHandler)
 	// 设置日志级别
 	app.Logger().SetLevel(viper.GetString("runmode"))
 	// 初始化DB
+	databases.InitDB()
+
 	// 重启
 	app.Use(recover2.New())
 	// API 路由
