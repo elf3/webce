@@ -6,8 +6,8 @@ import (
 	"github.com/kataras/iris/v12/mvc"
 	"net/http"
 	"webce/cmd/web/conf"
-	admin "webce/cmd/web/handlers/admin/controller"
 	"webce/cmd/web/handlers/admin/controller/login"
+	admin "webce/cmd/web/handlers/admin/controller/manager"
 	"webce/cmd/web/middle"
 	"webce/library/easycasbin"
 	"webce/library/session"
@@ -26,12 +26,13 @@ func InitRouter(app *iris.Application) {
 		p.Get("/login", login.Login)
 		p.Post("/login", login.Login)
 	})
-	mvc.New(app.Party("/user")).Handle(admin.NewManager())
 
 	// 使用中间件认证
 	ntc := app.Party("/admin")
 	{
 		ntc.Use(middle.AuthAdmin(easycasbin.NotCheck("/admin/login", "/admin/logout")))
+		mvc.New(ntc.Party("/user")).Handle(admin.NewManager())
+
 	}
 
 }

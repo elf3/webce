@@ -24,9 +24,17 @@ func InitRouter() *iris.Application {
 		MaxSize: 1,
 	})
 	app := iris.New()
+	app.Configure(iris.WithConfiguration(iris.Configuration{
+		LogLevel: viper.GetString("runmode"), // 设置日志级别
+		RemoteAddrHeaders: []string{
+			"X-Real-Ip",
+			"X-Forwarded-For",
+			"CF-Connecting-IP",
+			"True-Client-Ip",
+		},
+	}))
 	app.Use(middle.LoggerHandler)
-	// 设置日志级别
-	app.Logger().SetLevel(viper.GetString("runmode"))
+
 	// 初始化DB
 	databases.InitDB()
 

@@ -29,7 +29,7 @@ func (a AdminUserRepository) Login(username, pass string) *apgs.Response {
 
 	adminData := databases.DB.Model(&a.Admin).Preload("Roles").Where("username=?", username).First(&a.Admin)
 	if adminData.Error != nil {
-		return apgs.ApiReturn(400, "账号或密码错误", nil)
+		return apgs.ApiReturn(404, "账号或密码错误", nil)
 	}
 	passBool := password.Compare(a.Admin.Password, pass)
 	if passBool != nil {

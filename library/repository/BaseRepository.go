@@ -33,7 +33,7 @@ func (b *BaseRepository) Select(query map[string]interface{}) map[string]interfa
 }
 
 func (b *BaseRepository) Update(query map[string]interface{}, data interface{}) (count int64, err error) {
-	save := b.model.Save(data)
+	save := b.model.Where(query).Save(data)
 	if save.Error != nil {
 		return 0, save.Error
 	}

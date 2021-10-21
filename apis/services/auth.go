@@ -4,26 +4,27 @@ import (
 	"github.com/kataras/iris/v12"
 	"webce/apis/repositories/repo/adminrepo"
 	"webce/library/apgs"
+	"webce/library/log"
+	"webce/pkg/lib"
 )
 
 type AdminAuth struct {
 }
 
 func (a *AdminAuth) Login(username, password, ip string) *apgs.Response {
-	//session.SaveSession(c, session.UserKey, admin)
-	//
-	//v := l.GetMap(1)
-	//ip := c.ClientIP()
-	//v["last_login_ip"] = ip
-	//databases.DB.Model(&admin).Where("id = ?", admin.ID).Update(v)
 	repo := adminrepo.NewAdminUserRepository()
 	resp := repo.Login(username, password)
 	if resp.Code == 0 {
-		m := iris.Map{}
-		m["last_login_ip"] = ip
-		_, err := repo.Update(m, m)
+		m := iris.Map{
+			"last_login_ip": lib.Ip2long(ip),
+		}
+		where := iris.Map{
+			"username": username,
+		}
+		_, err := repo.Update(where, m)
 		if err != nil {
-			apgs.ApiReturn(400, err.Error(), nil)
+			log.Log.Error("login update last_login_ip error :", err)
+			return apgs.ApiReturn(400, err.Error(), nil)
 		}
 	}
 

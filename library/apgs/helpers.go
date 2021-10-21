@@ -2,6 +2,7 @@ package apgs
 
 import (
 	"fmt"
+	"github.com/kataras/iris/v12"
 	"reflect"
 )
 
@@ -25,6 +26,13 @@ func ApiReturn(code int, msg string, data interface{}) *Response {
 		Code: code,
 		Msg:  msg,
 		Data: data,
+	}
+}
+
+func Api(ctx iris.Context, data interface{}) {
+	_, err := ctx.JSON(data)
+	if err != nil {
+		return
 	}
 }
 
