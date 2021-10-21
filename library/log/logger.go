@@ -1,12 +1,15 @@
 package log
 
 import (
+	"fmt"
+	"path"
+
 	//rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 	"github.com/natefinch/lumberjack"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"os"
-	"path"
 	"time"
 )
 
@@ -24,12 +27,12 @@ func InitLogger(logConfig LogConfig) {
 	infoLevel := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
 		return lvl < zapcore.ErrorLevel
 	})
-	infoWriter := getLogWriter(logConfig.Path, "Info", logConfig.MaxSize)
+	infoWriter := getLogWriter("info")
 
 	errorLevel := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
 		return lvl >= zapcore.ErrorLevel
 	})
-	errorWriter := getLogWriter(logConfig.Path, "Error", logConfig.MaxSize)
+	errorWriter := getLogWriter("error")
 
 	core := zapcore.NewTee(
 		zapcore.NewCore(encoder, zapcore.AddSync(os.Stdout), zap.DebugLevel),
@@ -46,33 +49,29 @@ func customTimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
 }
 
 func getEncoder() zapcore.Encoder {
-	encoderConfig := zap.NewProductionEncoderConfig()
-	encoderConfig.EncodeTime = customTimeEncoder
-	encoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
+	zapType := viper.GetString("runmode")
+	var encoderConfig zapcore.EncoderConfig
+	switch zapType {
+	case "prod":
+		encoderConfig = zap.NewProductionEncoderConfig()
+	case "debug":
+		encoderConfig = zap.NewDevelopmentEncoderConfig()
+	}
+
+	encoderConfig.EncodeTime = customTimeEncoder                 // 时间
+	encoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder // 按级别显示不同颜色，不需要的话取值zapcore.CapitalLevelEncoder就可以了
+	encoderConfig.EncodeCaller = zapcore.FullCallerEncoder       // 显示完整文件路径
 	return zapcore.NewConsoleEncoder(encoderConfig)
 }
 
-//func getRoTateLogWriter(logPath, level string, maxSize uint) io.Writer {
-//	logFullPath := path.Join(logPath, level)
-//	hook, err := rotatelogs.New(
-//		logFullPath+".%Y%m%d%H.log",                 // 没有使用go风格反人类的format格式
-//		rotatelogs.WithLinkName(logFullPath+".log"), // 生成软链，指向最新日志文件
-//		rotatelogs.WithRotationCount(maxSize),       // 文件最大保存份数
-//		rotatelogs.WithRotationTime(24*time.Hour),   // 日志切割时间间隔
-//	)
-//	if err != nil {
-//		panic(err)
-//	}
-//	return hook
-//}
-
-func getLogWriter(logPath, level string, maxSize uint) zapcore.WriteSyncer {
+func getLogWriter(logType string) zapcore.WriteSyncer {
+	filename := path.Join(viper.GetString("zap.path"), logType)
 	lumberJackLogger := &lumberjack.Logger{
-		Filename:   path.Join(logPath, level) + ".log",
-		MaxSize:    int(maxSize),
-		MaxBackups: 5,
-		MaxAge:     30,
-		Compress:   false,
+		Filename:   fmt.Sprintf("%s.log", filename), // 日志文件存放目录，如果文件夹不存在会自动创建
+		MaxSize:    viper.GetInt("zap.maxSize"),     // 文件大小限制,单位MB
+		MaxBackups: viper.GetInt("zap.maxBackups"),  // 最大保留日志文件数量
+		MaxAge:     viper.GetInt("zap.maxAge"),      // 日志文件保留天数
+		Compress:   viper.GetBool("zap.compress"),   // 是否压缩处理
 	}
 	return zapcore.AddSync(lumberJackLogger)
 }

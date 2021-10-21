@@ -2,6 +2,7 @@ package middle
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/kataras/iris/v12"
@@ -58,6 +59,8 @@ func LoggerHandler(ctx iris.Context) {
 	timeConsuming := time.Since(start).Nanoseconds() / 1e6
 	msg := fmt.Sprintf("[http] %s-%s-%s-%d(%dms)",
 		p, ctx.Request().Method, ctx.Request().RemoteAddr, ctx.ResponseWriter().StatusCode(), timeConsuming)
-	log.Log.Debug(fields)
 	log.Log.Infof(msg)
+	marshal, _ := json.Marshal(fields)
+	log.Log.Debug(string(marshal))
+
 }
