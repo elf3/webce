@@ -17,6 +17,8 @@ import (
 func InitRouter(app *iris.Application) {
 	// 使用SESSION
 	app.Use(session.NewSessionStore())
+	// 静态模板类型
+	//app.HandleDir("/static", "./resources")
 	// 使用VIEW模板
 	templatesFS := iris.PrefixDir("./views", http.FS(conf.EmbedRoot))
 	app.RegisterView(iris.HTML(templatesFS, ".html"))

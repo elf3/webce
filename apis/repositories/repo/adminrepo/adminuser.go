@@ -1,6 +1,7 @@
 package adminrepo
 
 import (
+	"github.com/pkg/errors"
 	"webce/apis/repositories/models/admins"
 	"webce/library/apgs"
 	"webce/library/databases"
@@ -25,21 +26,27 @@ func NewAdminUserRepository() *AdminUserRepository {
 	}
 }
 
-func (a AdminUserRepository) Login(username, pass string) *apgs.Response {
+func (a AdminUserRepository) Login(username, pass string) (*admins.Admin, error) {
 
 	adminData := databases.DB.Model(&a.Admin).Preload("Roles").Where("username=?", username).First(&a.Admin)
 	if adminData.Error != nil {
-		return apgs.ApiReturn(404, "账号或密码错误", nil)
+		return nil, errors.New("账号或密码错误")
 	}
 	passBool := password.Compare(a.Admin.Password, pass)
 	if passBool != nil {
-		return apgs.ApiReturn(400, "账号或密码错误", nil)
+		return nil, errors.New("账号或密码错误")
 	}
 	a.Admin.Password = ""
-	return apgs.ApiReturn(0, "", a.Admin)
+	return &a.Admin, nil
 }
 
 func (a AdminUserRepository) AddAdmin(admin *admins.Admin, roleIds []int64) *apgs.Response {
+	passCode, err := password.Encrypt(admin.Password)
+	if err != nil {
+		log.Log.Error("error encrypt password：", err)
+		return apgs.ApiReturn(500, "error encrypt password", nil)
+	}
+	admin.Password = passCode
 	create, err := admin.Create(roleIds)
 	if err != nil {
 		log.Log.Error("create admin err: ", err.Error())
