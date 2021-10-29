@@ -1,15 +1,18 @@
 package login
 
 import (
+	"encoding/json"
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12"
-	"webce/apis/services"
+	"webce/api/services"
 	"webce/cmd/web/handlers/admin/controller/login/requests"
 	"webce/library/apgs"
 	"webce/library/log"
+	"webce/library/session"
+	"webce/pkg/lib"
 )
 
-func Main(ctx iris.Context) {
+func ShowLogin(ctx iris.Context) {
 	err := ctx.View("login.html")
 	if err != nil {
 		return
@@ -33,6 +36,12 @@ func Login(ctx iris.Context) {
 
 	addr := ctx.RemoteAddr()
 	auth := services.AdminAuth{}
-	login := auth.Login(req.Username, req.Password, addr)
-	apgs.Api(ctx, login)
+	login, err := auth.Login(req.Username, req.Password, addr)
+	if err != nil {
+		apgs.Api(ctx, apgs.ApiReturn(500, "invalid login", nil))
+		return
+	}
+	marshal, _ := json.Marshal(login)
+	session.SetSession(ctx, "userID", lib.BytesString(marshal))
+	apgs.Api(ctx, apgs.ApiReturn(0, "", login))
 }

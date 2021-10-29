@@ -6,8 +6,8 @@ import (
 	"github.com/spf13/cobra"
 	"os"
 	"webce/cmd/web/boot"
-	"webce/cmd/web/boot/router"
 	"webce/cmd/web/conf"
+	"webce/cmd/web/router"
 )
 
 //go:embed views/*.html

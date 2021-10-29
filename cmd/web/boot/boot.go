@@ -10,7 +10,6 @@ import (
 func Run(app *iris.Application) {
 	// 是否开启TLS
 	tls := viper.GetBool("tls")
-	fmt.Println(tls)
 	var err error
 	if !tls {
 		addr := viper.GetString("addr")

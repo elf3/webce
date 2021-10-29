@@ -1,6 +1,8 @@
 package requests
 
-import "webce/apis/repositories/models/admins"
+import (
+	"webce/internal/repositories/models/admins"
+)
 
 type ReqManage struct {
 	admins.Admin

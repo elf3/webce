@@ -2,7 +2,7 @@ package adminrepo
 
 import (
 	"github.com/pkg/errors"
-	"webce/apis/repositories/models/admins"
+	"webce/internal/repositories/models/admins"
 	"webce/library/apgs"
 	"webce/library/databases"
 	"webce/library/log"

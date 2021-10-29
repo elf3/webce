@@ -21,8 +21,8 @@ type LogConfig struct {
 
 var Log *zap.SugaredLogger
 
-func InitLogger(logConfig LogConfig) {
-	encoder := getEncoder()
+func InitLogger() {
+	encoder := GetEncoder()
 
 	infoLevel := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
 		return lvl < zapcore.ErrorLevel
@@ -44,11 +44,32 @@ func InitLogger(logConfig LogConfig) {
 	Log = logger.Sugar()
 }
 
+func InitGormLogger() *zap.Logger {
+	encoder := GetEncoder()
+
+	infoLevel := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+		return lvl < zapcore.ErrorLevel
+	})
+	infoWriter := getLogWriter("mysql")
+
+	errorLevel := zap.LevelEnablerFunc(func(lvl zapcore.Level) bool {
+		return lvl >= zapcore.ErrorLevel
+	})
+
+	core := zapcore.NewTee(
+		zapcore.NewCore(encoder, zapcore.AddSync(os.Stdout), zap.DebugLevel),
+		zapcore.NewCore(encoder, zapcore.AddSync(infoWriter), infoLevel),
+		zapcore.NewCore(encoder, zapcore.AddSync(infoWriter), errorLevel),
+		zapcore.NewCore(encoder, zapcore.AddSync(infoWriter), zap.InfoLevel),
+	)
+
+	return zap.New(core, zap.AddCaller())
+}
 func customTimeEncoder(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
 	enc.AppendString(t.Format("[2006-01-02 15:04:05]"))
 }
 
-func getEncoder() zapcore.Encoder {
+func GetEncoder() zapcore.Encoder {
 	zapType := viper.GetString("runmode")
 	var encoderConfig zapcore.EncoderConfig
 	switch zapType {
@@ -58,9 +79,9 @@ func getEncoder() zapcore.Encoder {
 		encoderConfig = zap.NewDevelopmentEncoderConfig()
 	}
 
-	encoderConfig.EncodeTime = customTimeEncoder                 // 时间
-	encoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder // 按级别显示不同颜色，不需要的话取值zapcore.CapitalLevelEncoder就可以了
-	encoderConfig.EncodeCaller = zapcore.FullCallerEncoder       // 显示完整文件路径
+	encoderConfig.EncodeTime = customTimeEncoder            // 时间
+	encoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder // 按级别显示不同颜色，不需要的话取值zapcore.CapitalLevelEncoder就可以了
+	encoderConfig.EncodeCaller = zapcore.FullCallerEncoder  // 显示完整文件路径
 	return zapcore.NewConsoleEncoder(encoderConfig)
 }
 

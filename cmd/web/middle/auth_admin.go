@@ -7,16 +7,17 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"webce/apis/repositories/models/admins"
+	admins2 "webce/internal/repositories/models/admins"
 	"webce/library/easycasbin"
 	"webce/library/session"
+	"webce/pkg/lib"
 )
 
 const (
-	UserKey = "userID"
+	UserKey = "user"
 )
 
-// 登录Session 中间件
+// AuthSessionMiddle 登录Session 中间件
 func AuthSessionMiddle() iris.Handler {
 
 	return func(c iris.Context) {
@@ -39,7 +40,7 @@ func AuthSessionMiddle() iris.Handler {
 
 // AuthAdmin 中间件
 func AuthAdmin(nocheck ...easycasbin.DontCheckFunc) iris.Handler {
-	// Casbin
+	// 适配器Casbin
 	enforcer, err := easycasbin.InitAdapter()
 	if err != nil {
 		panic(err)
@@ -51,14 +52,12 @@ func AuthAdmin(nocheck ...easycasbin.DontCheckFunc) iris.Handler {
 		}
 		// Session 判断权限
 		get := session.GetSession(c, UserKey)
-
-		if get == nil {
+		if get == "" {
 			c.Redirect("/admin/login", 302)
 			return
 		}
-
-		var admin admins.Admin
-		canGet := json.Unmarshal(get.([]byte), &admin)
+		var admin admins2.Admin
+		canGet := json.Unmarshal(lib.StringBytes(get), &admin)
 		// 超级管理员不验证权限
 		if admin.IsSuper == 1 {
 			c.Next()
@@ -74,7 +73,7 @@ func AuthAdmin(nocheck ...easycasbin.DontCheckFunc) iris.Handler {
 		}
 		_ = admin.LoadAllPolicy()
 
-		var role admins.Roles
+		var role admins2.Roles
 		_ = role.LoadAllPolicy()
 
 		for _, i2 := range admin.Roles {

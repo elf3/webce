@@ -11,6 +11,7 @@ import (
 	"path"
 	"time"
 	"webce/library/log"
+	"webce/pkg/lib"
 )
 
 func LoggerHandler(ctx iris.Context) {
@@ -59,8 +60,9 @@ func LoggerHandler(ctx iris.Context) {
 	timeConsuming := time.Since(start).Nanoseconds() / 1e6
 	msg := fmt.Sprintf("[http] %s-%s-%s-%d(%dms)",
 		p, ctx.Request().Method, ctx.Request().RemoteAddr, ctx.ResponseWriter().StatusCode(), timeConsuming)
-	log.Log.Infof(msg)
 	marshal, _ := json.Marshal(fields)
-	log.Log.Debug(string(marshal))
+	log.Log.Infof(msg, lib.BytesString(marshal))
+	//
+	//log.Log.Debug(string(marshal))
 
 }

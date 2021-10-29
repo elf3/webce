@@ -2,14 +2,17 @@ package migrate
 
 import (
 	"github.com/sirupsen/logrus"
-	"webce/apis/repositories/models/admins"
+	admins2 "webce/internal/repositories/models/admins"
+	business2 "webce/internal/repositories/models/business"
 	"webce/library/databases"
 )
 
 var models = []interface{}{
-	&admins.Admin{},
-	&admins.Permissions{},
-	&admins.Roles{},
+	&admins2.Admin{},
+	&admins2.Permissions{},
+	&admins2.Roles{},
+	&business2.Domains{},
+	&business2.Node{},
 }
 
 // 数据自动填充

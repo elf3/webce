@@ -1,7 +1,6 @@
 package session
 
 import (
-	"fmt"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/sessions"
 	"github.com/kataras/iris/v12/sessions/sessiondb/redis"
@@ -9,7 +8,7 @@ import (
 	"time"
 )
 
-// 初始化Session 方式 始终会返回一个数据存储方式，默认为 cookie
+// NewSessionStore 初始化Session 方式 始终会返回一个数据存储方式，默认为 cookie
 func NewSessionStore() iris.Handler {
 	typeOf := viper.GetString("session.type")
 	name := viper.GetString("session.name")
@@ -20,7 +19,6 @@ func NewSessionStore() iris.Handler {
 		AllowReclaim:    true,
 		CookieSecureTLS: true,
 	})
-	fmt.Println(typeOf)
 	switch typeOf {
 	case "redis":
 		store := redisStore()
@@ -47,8 +45,12 @@ func redisStore() sessions.Database {
 	return db
 }
 
-func GetSession(c iris.Context, key string) interface{} {
+func GetSession(c iris.Context, key string) string {
 	session := sessions.Get(c)
-	get := session.Get(key)
-	return get
+	return session.GetString(key)
+}
+
+func SetSession(c iris.Context, key string, value interface{}) {
+	get := sessions.Get(c)
+	get.Set(key, value)
 }

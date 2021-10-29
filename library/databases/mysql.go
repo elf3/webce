@@ -8,10 +8,13 @@ import (
 	"gorm.io/driver/mysql"
 	_ "gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
+	"webce/library/log"
+
+	glog "gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
-	"log"
-	"os"
+	//"log"
+	//"os"
+	"moul.io/zapgorm2"
 	"time"
 )
 
@@ -37,14 +40,9 @@ func InitDB() {
 		native,
 	)
 
-	newLogger := logger.New(
-		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
-		logger.Config{
-			SlowThreshold: time.Second,            // 慢 SQL 阈值
-			LogLevel:      logger.LogLevel(debug), // Log level
-			Colorful:      false,                  // 禁用彩色打印
-		},
-	)
+	logger := zapgorm2.New(log.InitGormLogger())
+	logger.LogLevel = glog.LogLevel(debug)
+	logger.SetAsDefault() // optional: configure gorm to use this zapgorm.Logger for callbacks
 
 	mysqlConf := mysql.New(mysql.Config{
 		DSN:                       dabs,  // DSN data source name
@@ -60,7 +58,7 @@ func InitDB() {
 			SingularTable: true,   // 使用单数表名，启用该选项，此时，`User` 的表名应该是 `t_user`
 		},
 		//Logger: logger.Default.LogMode(logger.LogLevel(debug)),
-		Logger:                 newLogger,
+		Logger:                 logger,
 		SkipDefaultTransaction: true, // 禁用默认事务
 		PrepareStmt:            true, // 执行任何 SQL 时都创建 prepared statement 并缓存，可以提高后续的调用速度
 

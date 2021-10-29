@@ -1,6 +1,8 @@
-package admins
+package business
 
-import "webce/apis/repositories/models"
+import (
+	"webce/internal/repositories/models"
+)
 
 type DetectType int64
 

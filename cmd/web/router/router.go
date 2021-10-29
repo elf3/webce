@@ -4,10 +4,10 @@ import (
 	"github.com/kataras/iris/v12"
 	recover2 "github.com/kataras/iris/v12/middleware/recover"
 	"github.com/spf13/viper"
-	"webce/apis/migrate"
-	"webce/cmd/web/boot/router/admin"
-	"webce/cmd/web/boot/router/api"
 	"webce/cmd/web/middle"
+	"webce/cmd/web/router/admin"
+	"webce/cmd/web/router/api"
+	"webce/internal/migrate"
 	"webce/library/config"
 	"webce/library/databases"
 	"webce/library/log"
@@ -18,11 +18,7 @@ func InitRouter() *iris.Application {
 	if errConf != nil {
 		panic(errConf)
 	}
-	log.InitLogger(log.LogConfig{
-		Level:   "",
-		Path:    "./",
-		MaxSize: 1,
-	})
+	log.InitLogger()
 	app := iris.New()
 	app.Configure(iris.WithConfiguration(iris.Configuration{
 		LogLevel: viper.GetString("runmode"), // 设置日志级别

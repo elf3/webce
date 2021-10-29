@@ -5,7 +5,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
-	"webce/apis/repositories/models"
+	"webce/internal/repositories/models"
 	"webce/library/databases"
 	"webce/library/easycasbin"
 )
