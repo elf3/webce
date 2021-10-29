@@ -2,6 +2,7 @@ package adminrepo
 
 import (
 	"github.com/pkg/errors"
+	"gorm.io/gorm"
 	"webce/internal/repositories/models/admins"
 	"webce/library/apgs"
 	"webce/library/databases"
@@ -41,6 +42,11 @@ func (a AdminUserRepository) Login(username, pass string) (*admins.Admin, error)
 }
 
 func (a AdminUserRepository) AddAdmin(admin *admins.Admin, roleIds []int64) *apgs.Response {
+	findAdmin := &admins.Admin{}
+	adminData := databases.DB.Model(&findAdmin).Where("username=?", admin.Username).First(&findAdmin)
+	if adminData != nil && adminData.Error != gorm.ErrRecordNotFound {
+		return apgs.ApiReturn(500, "账号已存在，请重试", nil)
+	}
 	passCode, err := password.Encrypt(admin.Password)
 	if err != nil {
 		log.Log.Error("error encrypt password：", err)
