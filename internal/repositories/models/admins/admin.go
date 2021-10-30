@@ -6,8 +6,8 @@ import (
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 	"webce/internal/repositories/models"
-	"webce/library/databases"
-	"webce/library/easycasbin"
+	"webce/pkg/library/databases"
+	"webce/pkg/library/easycasbin"
 )
 
 // Admin 管理员

@@ -12,6 +12,9 @@ tls:
   addr: :8081
   cert: cert/server.crt
   key: cert/server.key
+jwt:
+  expire: 100
+  secret: "123123"
 zap:
   path: logs/
   maxSize: 1024

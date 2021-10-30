@@ -1,7 +1,7 @@
 package admins
 
 import (
-	"webce/library/databases"
+	"webce/pkg/library/databases"
 )
 
 // 菜单权限

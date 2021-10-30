@@ -8,7 +8,7 @@ import (
 	"gorm.io/driver/mysql"
 	_ "gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"webce/library/log"
+	"webce/pkg/library/log"
 
 	glog "gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"

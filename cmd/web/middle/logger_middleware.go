@@ -10,8 +10,8 @@ import (
 	"net/http"
 	"path"
 	"time"
-	"webce/library/log"
 	"webce/pkg/lib"
+	"webce/pkg/library/log"
 )
 
 func LoggerHandler(ctx iris.Context) {

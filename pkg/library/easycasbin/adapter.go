@@ -6,7 +6,7 @@ import (
 	adapter "github.com/casbin/gorm-adapter/v3"
 	"github.com/kataras/iris/v12"
 	"github.com/spf13/viper"
-	"webce/library/databases"
+	"webce/pkg/library/databases"
 )
 
 // Casbin is the auth services which contains the easycasbin enforcer.

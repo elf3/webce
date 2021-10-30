@@ -4,7 +4,7 @@ import (
 	"webce/cmd/web/handlers/admin/controller"
 	"webce/internal/repositories/models/admins"
 	"webce/internal/repositories/repo/adminrepo"
-	"webce/library/log"
+	"webce/pkg/library/log"
 )
 
 type HandlerManager struct {

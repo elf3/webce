@@ -2,7 +2,7 @@ package admin
 
 import (
 	"github.com/kataras/iris/v12"
-	"webce/library/apgs"
+	"webce/pkg/library/apgs"
 )
 
 type BaseHandler struct {

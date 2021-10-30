@@ -3,8 +3,8 @@ package admins
 import (
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
-	"webce/library/databases"
-	"webce/library/easycasbin"
+	"webce/pkg/library/databases"
+	"webce/pkg/library/easycasbin"
 )
 
 // 角色

@@ -4,7 +4,7 @@ import (
 	"github.com/sirupsen/logrus"
 	admins2 "webce/internal/repositories/models/admins"
 	business2 "webce/internal/repositories/models/business"
-	"webce/library/databases"
+	"webce/pkg/library/databases"
 )
 
 var models = []interface{}{

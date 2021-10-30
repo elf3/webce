@@ -8,9 +8,10 @@ import (
 	"webce/cmd/web/router/admin"
 	"webce/cmd/web/router/api"
 	"webce/internal/migrate"
-	"webce/library/config"
-	"webce/library/databases"
-	"webce/library/log"
+	"webce/pkg/library/config"
+	"webce/pkg/library/databases"
+	"webce/pkg/library/easycasbin"
+	"webce/pkg/library/log"
 )
 
 func InitRouter() *iris.Application {
@@ -33,7 +34,7 @@ func InitRouter() *iris.Application {
 
 	// 初始化DB
 	databases.InitDB()
-
+	easycasbin.InitAdapter()
 	// 重启
 	app.Use(recover2.New())
 	// API 路由

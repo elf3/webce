@@ -4,21 +4,21 @@ import (
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 	"webce/internal/repositories/models/admins"
-	"webce/library/apgs"
-	"webce/library/databases"
-	"webce/library/log"
-	"webce/library/password"
-	"webce/library/repository"
+	"webce/pkg/library/apgs"
+	"webce/pkg/library/databases"
+	"webce/pkg/library/log"
+	"webce/pkg/library/password"
+	repository2 "webce/pkg/library/repository"
 )
 
 type AdminUserRepository struct {
-	repository.Repository
+	repository2.Repository
 	admins.Admin
 }
 
 func NewAdminUserRepository() *AdminUserRepository {
 	var model = admins.Admin{}
-	newRepository, _ := repository.NewRepository(
+	newRepository, _ := repository2.NewRepository(
 		databases.GetDB().Model(&model),
 	)
 	return &AdminUserRepository{
@@ -59,4 +59,8 @@ func (a AdminUserRepository) AddAdmin(admin *admins.Admin, roleIds []int64) *apg
 		return apgs.ApiReturn(400, "create admin err", nil)
 	}
 	return apgs.ApiReturn(200, "", create)
+}
+
+func (a AdminUserRepository) GetAdminById(id int) (admins.Admin, error) {
+	return a.Admin.GetById(id)
 }

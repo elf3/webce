@@ -4,7 +4,7 @@ import (
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 	"webce/internal/repositories/models"
-	"webce/library/databases"
+	"webce/pkg/library/databases"
 )
 
 // Node 检测主机节点

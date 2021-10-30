@@ -10,8 +10,8 @@ import (
 	admin "webce/cmd/web/handlers/admin/controller/manager"
 	"webce/cmd/web/handlers/admin/controller/node"
 	"webce/cmd/web/middle"
-	"webce/library/easycasbin"
-	"webce/library/session"
+	"webce/pkg/library/easycasbin"
+	"webce/pkg/library/session"
 )
 
 // InitRouter Admin 路由
