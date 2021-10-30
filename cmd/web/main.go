@@ -10,7 +10,7 @@ import (
 	"webce/cmd/web/router"
 )
 
-//go:embed views/*.html
+//go:embed views/*/*.html
 var EmbedFs embed.FS
 var rootCmd = &cobra.Command{
 	Use:   "Web Server ",

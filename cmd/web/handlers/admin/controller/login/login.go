@@ -13,7 +13,7 @@ import (
 )
 
 func ShowLogin(ctx iris.Context) {
-	err := ctx.View("login.html")
+	err := ctx.View("login/login.html")
 	if err != nil {
 		return
 	}
