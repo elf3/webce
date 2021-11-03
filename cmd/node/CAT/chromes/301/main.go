@@ -6,12 +6,10 @@ import (
 	"github.com/chromedp/cdproto"
 	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/cdproto/runtime"
-	"io/ioutil"
-	"log"
-	"time"
-
 	"github.com/chromedp/chromedp"
 	"github.com/chromedp/chromedp/device"
+	"io/ioutil"
+	"log"
 )
 
 func Pdrintf(format string, v ...interface{}) {
@@ -67,6 +65,13 @@ func main() {
 			json, _ := ev.MarshalJSON()
 			fmt.Println(string(json))
 			fmt.Println("浏览器加载失败的日志...........")
+
+		case *network.EventLoadingFinished:
+			fmt.Println("浏览器加载完成...........")
+			json, _ := ev.MarshalJSON()
+			fmt.Println(string(json))
+			fmt.Println("浏览器加载完成...........")
+
 		default:
 			//log.Println("type: ", reflect.TypeOf(ev), "ev data: ", ev)
 		}
@@ -75,9 +80,8 @@ func main() {
 		// emulate iPhone 7 landscape
 		chromedp.Emulate(device.IPhone8Plus),
 		chromedp.EvaluateAsDevTools(js, &errmsg),
-		chromedp.Navigate(`https://mojotv.cn/2018/12/26/chromedp-tutorial-for-golang`),
+		chromedp.Navigate(`https://baidu.com`),
 
-		chromedp.Sleep(1*time.Second),
 		chromedp.CaptureScreenshot(&b1),
 		//
 		//// reset
