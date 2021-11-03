@@ -2,16 +2,18 @@ package auth
 
 import (
 	"github.com/pkg/errors"
-	"webce/internal/repositories/models/admins"
+	"strconv"
+	"webce/api/auth/response"
 	"webce/internal/repositories/repo/adminrepo"
 	"webce/pkg/lib"
+	"webce/pkg/library/jwt"
 	"webce/pkg/library/log"
 )
 
 type AdminAuth struct {
 }
 
-func (a *AdminAuth) Login(username, password, ip string) (*admins.Admin, error) {
+func (a *AdminAuth) Login(username, password, ip string) (*response.LoginResponse, error) {
 	repo := adminrepo.NewAdminUserRepository()
 	resp, err := repo.Login(username, password)
 	if err != nil {
@@ -30,5 +32,13 @@ func (a *AdminAuth) Login(username, password, ip string) (*admins.Admin, error) 
 		return nil, errors.New("ip错误")
 	}
 
-	return resp, nil
+	token, err := jwt.CreateToken(strconv.FormatUint(resp.ID, 10), resp.Username)
+	if err != nil {
+		log.Log.Error("token create err :", err)
+		return nil, errors.New("token create err")
+	}
+	return &response.LoginResponse{
+		Admin: resp,
+		Token: token,
+	}, nil
 }

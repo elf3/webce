@@ -3,13 +3,23 @@ package middle
 import (
 	"github.com/kataras/iris/v12"
 	"net/http"
+	"strconv"
 	"strings"
 	"webce/internal/repositories/models/admins"
 	"webce/internal/repositories/repo/adminrepo"
 	"webce/pkg/library/apgs"
 	"webce/pkg/library/easycasbin"
 	"webce/pkg/library/jwt"
+	"webce/pkg/library/log"
 )
+
+func getToken(token string) string {
+	authHeaderParts := strings.Split(token, " ")
+	if len(authHeaderParts) != 2 {
+		return ""
+	}
+	return authHeaderParts[1]
+}
 
 // AuthAdmin 中间件
 func AuthAdmin(nocheck ...easycasbin.DontCheckFunc) iris.Handler {
@@ -19,14 +29,28 @@ func AuthAdmin(nocheck ...easycasbin.DontCheckFunc) iris.Handler {
 			c.Next()
 			return
 		}
-		token, err := jwt.ParseToken(c.GetHeader("token"))
+		token, err := jwt.ParseToken(getToken(c.GetHeader("Authorization")))
 		if err != nil {
+			log.Log.Error("parse token err: ", err)
 			c.JSON(apgs.ApiReturn(500, "error token", ""))
 			return
 		}
 		//username := token["username"].(string)
-		id := token["id"].(int)
-		admin, err := adminrepo.NewAdminUserRepository().GetAdminById(id)
+		id, ok := token["userId"]
+		if !ok {
+			log.Log.Error("parse token userId err: ", ok)
+			c.JSON(apgs.ApiReturn(500, "error token", ""))
+			return
+		}
+
+		adminIdStr := id.(string)
+		adminId, err := strconv.Atoi(adminIdStr)
+		if err != nil {
+			log.Log.Error("parse token userId err: ", ok)
+			c.JSON(apgs.ApiReturn(500, "error token", ""))
+			return
+		}
+		admin, err := adminrepo.NewAdminUserRepository().GetAdminById(adminId)
 		if err != nil {
 			c.Redirect("/admin/login", 302)
 			return

@@ -11,6 +11,7 @@ import (
 	"webce/pkg/library/config"
 	"webce/pkg/library/databases"
 	"webce/pkg/library/easycasbin"
+	"webce/pkg/library/jwt"
 	"webce/pkg/library/log"
 )
 
@@ -31,6 +32,7 @@ func InitRouter() *iris.Application {
 		},
 	}))
 	app.Use(middle.LoggerHandler)
+	jwt.InitJwtConf()
 
 	// 初始化DB
 	databases.InitDB()

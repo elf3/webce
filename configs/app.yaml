@@ -13,8 +13,8 @@ tls:
   cert: cert/server.crt
   key: cert/server.key
 jwt:
-  expire: 100
-  secret: "123123"
+  expire: 86400
+  secret: 12312323o1ge198
 zap:
   path: logs/
   maxSize: 1024

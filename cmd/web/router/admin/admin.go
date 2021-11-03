@@ -30,7 +30,7 @@ func InitRouter(app *iris.Application) {
 	// 使用中间件认证
 	ntc := app.Party("/admin")
 	{
-		ntc.Use(middle.AuthAdmin(easycasbin.NotCheck("/admin/login", "/admin/logout", "/admin/user/create/admin")))
+		ntc.Use(middle.AuthAdmin(easycasbin.NotCheck("/admin/login", "/admin/logout")))
 		mvc.New(ntc.Party("/user")).Handle(manager.NewManager())
 		mvc.New(ntc.Party("/node")).Handle(node.NewNode())
 	}

@@ -4,6 +4,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/spf13/viper"
 	"time"
+	"webce/pkg/lib"
 )
 
 var (
@@ -11,7 +12,7 @@ var (
 	SecretKey string
 )
 
-func init() {
+func InitJwtConf() {
 	Exp = viper.GetInt64("jwt.expire")
 	SecretKey = viper.GetString("jwt.secret")
 }
@@ -27,14 +28,14 @@ func CreateToken(userId, username string) (tokenString string, err error) {
 	claims["userId"] = userId
 
 	token.Claims = claims
-	tokenString, err = token.SignedString(SecretKey)
+	tokenString, err = token.SignedString(lib.StringBytes(SecretKey))
 	return
 }
 
 // ParseToken 解析token
 func ParseToken(tokenSrt string) (claims jwt.MapClaims, err error) {
 	token, err := jwt.Parse(tokenSrt, func(*jwt.Token) (interface{}, error) {
-		return SecretKey, nil
+		return lib.StringBytes(SecretKey), nil
 	})
 	if err != nil {
 		return nil, err
