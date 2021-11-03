@@ -3,7 +3,7 @@ package login
 import (
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12"
-	"webce/api/services"
+	"webce/api/auth"
 	"webce/cmd/web/handlers/admin/controller/login/requests"
 	"webce/pkg/library/apgs"
 	"webce/pkg/library/log"
@@ -25,7 +25,7 @@ func Login(ctx iris.Context) {
 	}
 
 	addr := ctx.RemoteAddr()
-	auth := services.AdminAuth{}
+	auth := auth.AdminAuth{}
 	login, err := auth.Login(req.Username, req.Password, addr)
 	if err != nil {
 		apgs.Api(ctx, apgs.ApiReturn(500, "invalid login", nil))

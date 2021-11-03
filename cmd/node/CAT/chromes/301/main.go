@@ -35,12 +35,7 @@ func main() {
 	defer cancel()
 	// run
 	var b1 []byte
-	var errmsg interface{}
-	js := `
-		window.onerror = function(message, source, lineno, colno, error) {
-		   console.log('捕获到异常：',{message, source, lineno, colno, error});
-		}
-	`
+
 	chromedp.ListenTarget(ctx, func(ev interface{}) {
 		switch ev := ev.(type) {
 		case *runtime.EventExceptionThrown:
@@ -79,17 +74,8 @@ func main() {
 	if err := chromedp.Run(ctx,
 		// emulate iPhone 7 landscape
 		chromedp.Emulate(device.IPhone8Plus),
-		chromedp.EvaluateAsDevTools(js, &errmsg),
 		chromedp.Navigate(`https://baidu.com`),
-
 		chromedp.CaptureScreenshot(&b1),
-		//
-		//// reset
-		//chromedp.Emulate(device.Reset),
-		//// set really large viewport
-		//chromedp.EmulateViewport(1920, 2000),
-		//chromedp.Navigate(`https://www.baidu.com/`),
-		//chromedp.CaptureScreenshot(&b2),
 	); err != nil {
 		log.Fatal(err)
 	}
@@ -97,8 +83,5 @@ func main() {
 	if err := ioutil.WriteFile("baidu_IPhone8Plus.png", b1, 0777); err != nil {
 		log.Fatal(err)
 	}
-	//if err := ioutil.WriteFile("baidu_PC.png", b2, 0777); err != nil {
-	//	log.Fatal(err)
-	//}
-	fmt.Println(errmsg)
+
 }
