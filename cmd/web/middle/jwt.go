@@ -4,7 +4,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	jwtmiddleware "github.com/iris-contrib/middleware/jwt"
 	"github.com/kataras/iris/v12"
-	"webce/pkg/library/apgs"
+	"webce/pkg/lib"
 	liberty "webce/pkg/library/jwt"
 )
 
@@ -14,7 +14,7 @@ func OnError(ctx iris.Context, err error) {
 		return
 	}
 	ctx.StopExecution()
-	ctx.JSON(apgs.ApiReturn(999, err.Error(), nil))
+	lib.ErrJson(ctx, 999, err.Error())
 }
 
 // JwtHandler 验证Token

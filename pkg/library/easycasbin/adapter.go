@@ -1,12 +1,12 @@
 package easycasbin
 
 import (
-	"fmt"
 	"github.com/casbin/casbin/v2"
 	adapter "github.com/casbin/gorm-adapter/v3"
 	"github.com/kataras/iris/v12"
 	"github.com/spf13/viper"
 	"webce/pkg/library/databases"
+	"webce/pkg/library/log"
 )
 
 // Casbin is the auth services which contains the easycasbin enforcer.
@@ -19,17 +19,19 @@ func GetEnforcer() *casbin.SyncedEnforcer {
 }
 
 // InitAdapter 初始化权限 数据库适配器
-func InitAdapter() (*casbin.SyncedEnforcer, error) {
+func InitAdapter() {
 	//TODO 因为 前缀问题，此处要写死
 
 	//a, err := adapter.NewAdapterByDBUseTableName(databases.GetDB(), "w", "casbin_rule")
 	a, err := adapter.NewAdapterByDB(databases.GetDB())
 	if err != nil {
-		return nil, fmt.Errorf("can not Init: %v", err.Error())
+		log.Log.Fatalf("can not Init: %v", err.Error())
+		return
 	}
 	e, err := casbin.NewSyncedEnforcer("./configs/rbac_model.conf", a)
 	if err != nil {
-		return nil, fmt.Errorf("can not Init: %v", err.Error())
+		log.Log.Fatalf("can not Init: %v", err.Error())
+		return
 	}
 	// 开启AutoSave机制
 	e.EnableAutoSave(true)
@@ -42,7 +44,7 @@ func InitAdapter() (*casbin.SyncedEnforcer, error) {
 	// 因为开启了AutoSave机制，现在内存中的改变会同步回写到持久层中
 	//e.AddPolicy("admin", "test", "test")
 	Enfocer = e
-	return e, err
+	return
 }
 
 type DontCheckFunc func(ctx iris.Context) bool
