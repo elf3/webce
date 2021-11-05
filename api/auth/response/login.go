@@ -1,8 +1,10 @@
 package response
 
-import "webce/internal/repositories/models/admins"
+import (
+	"webce/internal/repositories/models/admins/admin"
+)
 
 type LoginResponse struct {
-	*admins.Admin
+	*admin.Admin
 	Token string `json:"token"`
 }

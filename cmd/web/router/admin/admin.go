@@ -7,6 +7,7 @@ import (
 	"webce/cmd/web/handlers/admin/controller/login"
 	"webce/cmd/web/handlers/admin/controller/manager"
 	"webce/cmd/web/handlers/admin/controller/node"
+	"webce/cmd/web/handlers/admin/controller/permission"
 	"webce/cmd/web/middle"
 	"webce/pkg/library/easycasbin"
 	"webce/pkg/library/session"
@@ -33,6 +34,7 @@ func InitRouter(app *iris.Application) {
 		ntc.Use(middle.AuthAdmin(easycasbin.NotCheck("/admin/login", "/admin/logout")))
 		mvc.New(ntc.Party("/user")).Handle(manager.NewManager())
 		mvc.New(ntc.Party("/node")).Handle(node.NewNode())
+		mvc.New(ntc.Party("/permission")).Handle(permission.NewPermissionHandler())
 	}
 
 }

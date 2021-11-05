@@ -1,13 +1,14 @@
-package admins
+package admin
 
 import (
-	"fmt"
 	"github.com/go-playground/validator/v10"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 	"webce/internal/repositories/models"
+	"webce/internal/repositories/models/admins/roles"
 	"webce/pkg/library/databases"
 	"webce/pkg/library/easycasbin"
+	"webce/pkg/library/log"
 )
 
 // Admin 管理员
@@ -15,10 +16,10 @@ type Admin struct {
 	models.BaseModel
 	Username string `gorm:"type:char(50);unique; unique_index;not null;"  validate:"min=6,max=32" form:"username" json:"username"`
 	// 设置管理员账号 唯一并且不为空
-	Password    string  `gorm:"size:255;not null;" form:"password" json:"password" ` // 设置字段大小为255
-	LastLoginIp int64   `gorm:"type:bigint(1);not null;" json:"last_login_ip"`       // 上次登录IP
-	IsSuper     int     `gorm:"type:tinyint(1);not null" json:"is_super"`            // 是否超级管理员
-	Roles       []Roles `gorm:"many2many:admin_role;not null;" json:"roles"`         // 角色
+	Password    string        `gorm:"size:255;not null;" form:"password" json:"password" ` // 设置字段大小为255
+	LastLoginIp int64         `gorm:"type:bigint(1);not null;" json:"last_login_ip"`       // 上次登录IP
+	IsSuper     int           `gorm:"type:tinyint(1);not null" json:"is_super"`            // 是否超级管理员
+	Roles       []roles.Roles `gorm:"many2many:admin_role;not null;" json:"roles"`         // 角色
 }
 
 // Validate the fields.
@@ -29,14 +30,15 @@ func (u *Admin) Validate() error {
 
 // GetByCount 获取有多少条记录
 func (u Admin) GetByCount(whereSql string, vals []interface{}) (count int64) {
-	databases.DB.Model(u).Where(whereSql, vals).Count(&count)
+	databases.DB.Model(u).Where(whereSql, vals...).Count(&count)
 	return
 }
 
 // Lists 获取列表，按照 offest 和 limit参数进行分页
 func (u Admin) Lists(fields string, whereSql string, vals []interface{}, offset, limit int) ([]Admin, error) {
 	list := make([]Admin, limit)
-	find := databases.DB.Preload("Roles").Model(&u).Select(fields).Where(whereSql, vals).Offset(offset).Limit(limit).Find(&list)
+	find := databases.DB.Preload("Roles").
+		Model(&u).Select(fields).Where(whereSql, vals...).Offset(offset).Limit(limit).Find(&list)
 	if find.Error != nil && find.Error != gorm.ErrRecordNotFound {
 		return nil, find.Error
 	}
@@ -45,7 +47,7 @@ func (u Admin) Lists(fields string, whereSql string, vals []interface{}, offset,
 
 // Get 获取单条记录
 func (u Admin) Get(whereSql string, vals []interface{}) (Admin, error) {
-	first := databases.DB.Preload("Roles").Model(&u).Where(whereSql, vals).First(&u)
+	first := databases.DB.Preload("Roles").Model(&u).Where(whereSql, vals...).First(&u)
 	if first.Error != nil {
 		return u, first.Error
 	}
@@ -53,7 +55,7 @@ func (u Admin) Get(whereSql string, vals []interface{}) (Admin, error) {
 }
 
 // GetById 通过主键ID
-func (u Admin) GetById(id int) (Admin, error) {
+func (u Admin) GetById(id uint64) (Admin, error) {
 	first := databases.DB.Preload("Roles").Model(&u).Where("id = ?", id).First(&u)
 	if first.Error != nil {
 		return u, first.Error
@@ -63,7 +65,7 @@ func (u Admin) GetById(id int) (Admin, error) {
 
 // Create 创建记录
 func (u Admin) Create(roleIds []int64) (*Admin, error) {
-	var role = make([]Roles, 0)
+	var role = make([]roles.Roles, 0)
 	find := databases.DB.Where("id in (?)", roleIds).Find(&role)
 	if find.Error != nil || find.RowsAffected == 0 {
 		return nil, errors.New("角色未初始化")
@@ -116,7 +118,7 @@ func (u Admin) Delete(id int) (bool, error) {
 }
 
 // LoadPolicy 加载用户权限策略
-func (u *Admin) LoadPolicy(id int) error {
+func (u *Admin) LoadPolicy(id uint64) error {
 
 	admin, err := u.GetById(id)
 	if err != nil {
@@ -124,6 +126,7 @@ func (u *Admin) LoadPolicy(id int) error {
 	}
 	_, err = easycasbin.GetEnforcer().DeleteRolesForUser(admin.Username)
 	if err != nil {
+		log.Log.Error("LoadPolicy DeleteRolesForUser error : ", err)
 		return err
 	}
 
@@ -133,7 +136,7 @@ func (u *Admin) LoadPolicy(id int) error {
 			return err
 		}
 	}
-	fmt.Println("更新角色权限关系", easycasbin.GetEnforcer().GetGroupingPolicy())
+	//fmt.Println("更新角色权限关系", easycasbin.GetEnforcer().GetGroupingPolicy())
 	return nil
 }
 
@@ -148,6 +151,21 @@ func (u Admin) GetUsersAll() ([]*Admin, error) {
 	return admin, nil
 }
 
+// LoadAdminPolicy 加载用户策略
+func (u *Admin) LoadAdminPolicy(id uint64) error {
+	admin, err := u.GetById(id)
+	if err != nil {
+		return err
+	}
+	if len(admin.Roles) != 0 {
+		err = u.LoadPolicy(admin.ID)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // LoadAllPolicy 加载所有的用户策略
 func (u *Admin) LoadAllPolicy() error {
 	admins, err := u.GetUsersAll()
@@ -156,12 +174,12 @@ func (u *Admin) LoadAllPolicy() error {
 	}
 	for _, admin := range admins {
 		if len(admin.Roles) != 0 {
-			err = u.LoadPolicy(int(admin.ID))
+			err = u.LoadPolicy(admin.ID)
 			if err != nil {
 				return err
 			}
 		}
 	}
-	fmt.Println("角色权限关系", easycasbin.GetEnforcer().GetGroupingPolicy())
+	//fmt.Println("角色权限关系", easycasbin.GetEnforcer().GetGroupingPolicy())
 	return nil
 }

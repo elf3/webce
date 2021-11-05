@@ -3,7 +3,7 @@ package adminrepo
 import (
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
-	"webce/internal/repositories/models/admins"
+	"webce/internal/repositories/models/admins/admin"
 	"webce/pkg/library/apgs"
 	"webce/pkg/library/databases"
 	"webce/pkg/library/log"
@@ -13,11 +13,11 @@ import (
 
 type AdminUserRepository struct {
 	repository2.Repository
-	admins.Admin
+	admin.Admin
 }
 
 func NewAdminUserRepository() *AdminUserRepository {
-	var model = admins.Admin{}
+	var model = admin.Admin{}
 	newRepository, _ := repository2.NewRepository(
 		databases.GetDB().Model(&model),
 	)
@@ -27,7 +27,7 @@ func NewAdminUserRepository() *AdminUserRepository {
 	}
 }
 
-func (a AdminUserRepository) Login(username, pass string) (*admins.Admin, error) {
+func (a AdminUserRepository) Login(username, pass string) (*admin.Admin, error) {
 
 	adminData := databases.DB.Model(&a.Admin).Preload("Roles").Where("username=?", username).First(&a.Admin)
 	if adminData.Error != nil {
@@ -41,19 +41,19 @@ func (a AdminUserRepository) Login(username, pass string) (*admins.Admin, error)
 	return &a.Admin, nil
 }
 
-func (a AdminUserRepository) AddAdmin(admin *admins.Admin, roleIds []int64) *apgs.Response {
-	findAdmin := &admins.Admin{}
-	adminData := databases.DB.Model(&findAdmin).Where("username=?", admin.Username).First(&findAdmin)
+func (a AdminUserRepository) AddAdmin(add *admin.Admin, roleIds []int64) *apgs.Response {
+	findAdmin := &admin.Admin{}
+	adminData := databases.DB.Model(&findAdmin).Where("username=?", add.Username).First(&findAdmin)
 	if adminData != nil && adminData.Error != gorm.ErrRecordNotFound {
 		return apgs.ApiReturn(500, "账号已存在，请重试", nil)
 	}
-	passCode, err := password.Encrypt(admin.Password)
+	passCode, err := password.Encrypt(add.Password)
 	if err != nil {
 		log.Log.Error("error encrypt password：", err)
 		return apgs.ApiReturn(500, "error encrypt password", nil)
 	}
-	admin.Password = passCode
-	create, err := admin.Create(roleIds)
+	add.Password = passCode
+	create, err := findAdmin.Create(roleIds)
 	if err != nil {
 		log.Log.Error("create admin err: ", err.Error())
 		return apgs.ApiReturn(400, "create admin err", nil)
@@ -61,6 +61,6 @@ func (a AdminUserRepository) AddAdmin(admin *admins.Admin, roleIds []int64) *apg
 	return apgs.ApiReturn(200, "", create)
 }
 
-func (a AdminUserRepository) GetAdminById(id int) (admins.Admin, error) {
+func (a AdminUserRepository) GetAdminById(id uint64) (admin.Admin, error) {
 	return a.Admin.GetById(id)
 }

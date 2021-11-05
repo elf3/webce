@@ -2,15 +2,17 @@ package migrate
 
 import (
 	"github.com/sirupsen/logrus"
-	admins2 "webce/internal/repositories/models/admins"
+	"webce/internal/repositories/models/admins/admin"
+	admins2 "webce/internal/repositories/models/admins/permissions"
+	"webce/internal/repositories/models/admins/roles"
 	business2 "webce/internal/repositories/models/business"
 	"webce/pkg/library/databases"
 )
 
 var models = []interface{}{
-	&admins2.Admin{},
+	&admin.Admin{},
 	&admins2.Permissions{},
-	&admins2.Roles{},
+	&roles.Roles{},
 	&business2.Domains{},
 	&business2.Node{},
 }

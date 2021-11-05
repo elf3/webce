@@ -37,6 +37,7 @@ func InitRouter() *iris.Application {
 	// 初始化DB
 	databases.InitDB()
 	easycasbin.InitAdapter()
+
 	// 重启
 	app.Use(recover2.New())
 	// API 路由

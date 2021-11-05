@@ -4,13 +4,13 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/kataras/iris/v12"
 	"webce/api/auth"
-	"webce/cmd/web/handlers/admin/controller/login/requests"
+	"webce/cmd/web/handlers/admin/controller/login/request"
 	"webce/pkg/library/apgs"
 	"webce/pkg/library/log"
 )
 
 func Login(ctx iris.Context) {
-	req := requests.ReqLogin{}
+	req := request.ReqLogin{}
 	err := ctx.ReadForm(&req)
 	if err != nil {
 		apgs.Api(ctx, apgs.ApiReturn(400, "invalid request", nil))

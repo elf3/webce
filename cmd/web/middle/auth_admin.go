@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"webce/internal/repositories/models/admins"
+	"webce/internal/repositories/models/admins/roles"
 	"webce/internal/repositories/repo/adminrepo"
 	"webce/pkg/library/apgs"
 	"webce/pkg/library/easycasbin"
@@ -29,7 +29,13 @@ func AuthAdmin(nocheck ...easycasbin.DontCheckFunc) iris.Handler {
 			c.Next()
 			return
 		}
-		token, err := jwt.ParseToken(getToken(c.GetHeader("Authorization")))
+		authToken := getToken(c.GetHeader("Authorization"))
+		if authToken == "" {
+			log.Log.Error("not auth: ")
+			c.JSON(apgs.ApiReturn(500, "not auth", ""))
+			return
+		}
+		token, err := jwt.ParseToken(authToken)
 		if err != nil {
 			log.Log.Error("parse token err: ", err)
 			c.JSON(apgs.ApiReturn(500, "error token", ""))
@@ -44,7 +50,7 @@ func AuthAdmin(nocheck ...easycasbin.DontCheckFunc) iris.Handler {
 		}
 
 		adminIdStr := id.(string)
-		adminId, err := strconv.Atoi(adminIdStr)
+		adminId, err := strconv.ParseUint(adminIdStr, 10, 64)
 		if err != nil {
 			log.Log.Error("parse token userId err: ", ok)
 			c.JSON(apgs.ApiReturn(500, "error token", ""))
@@ -63,12 +69,15 @@ func AuthAdmin(nocheck ...easycasbin.DontCheckFunc) iris.Handler {
 
 		if len(admin.Roles) <= 0 || admin.Roles == nil || admin.ID <= 0 {
 			c.JSON(apgs.ApiReturn(500, "permission denied", ""))
-			_, _ = c.Problem(nil)
 			return
 		}
-		_ = admin.LoadAllPolicy()
-
-		var role admins.Roles
+		err = admin.LoadAdminPolicy(admin.ID)
+		if err != nil {
+			log.Log.Error("load permission error : ", err)
+			c.JSON(apgs.ApiReturn(500, "load permission error", ""))
+			return
+		}
+		var role roles.Roles
 		_ = role.LoadAllPolicy()
 
 		for _, i2 := range admin.Roles {

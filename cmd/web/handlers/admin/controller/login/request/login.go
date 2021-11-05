@@ -1,4 +1,4 @@
-package requests
+package request
 
 type ReqLogin struct {
 	Username string `json:"username" form:"username" validate:"required,min=3,max=20"`

@@ -21,7 +21,9 @@ func GetEnforcer() *casbin.SyncedEnforcer {
 // InitAdapter 初始化权限 数据库适配器
 func InitAdapter() (*casbin.SyncedEnforcer, error) {
 	//TODO 因为 前缀问题，此处要写死
-	a, err := adapter.NewAdapterByDBUseTableName(databases.GetDB(), "wk", "casbin_rule")
+
+	//a, err := adapter.NewAdapterByDBUseTableName(databases.GetDB(), "w", "casbin_rule")
+	a, err := adapter.NewAdapterByDB(databases.GetDB())
 	if err != nil {
 		return nil, fmt.Errorf("can not Init: %v", err.Error())
 	}

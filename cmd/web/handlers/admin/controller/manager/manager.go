@@ -2,7 +2,7 @@ package manager
 
 import (
 	"webce/cmd/web/handlers/admin/controller"
-	"webce/internal/repositories/models/admins"
+	admin2 "webce/internal/repositories/models/admins/admin"
 	"webce/internal/repositories/repo/adminrepo"
 	"webce/pkg/library/log"
 )
@@ -19,7 +19,7 @@ func NewManager() *HandlerManager {
 }
 
 func (g *HandlerManager) GetCreateAdmin() {
-	ad := &admins.Admin{}
+	ad := &admin2.Admin{}
 	err := g.Ctx.ReadForm(ad)
 	if err != nil {
 		g.ApiJson(400, err.Error(), nil)
