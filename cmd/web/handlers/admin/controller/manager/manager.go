@@ -4,6 +4,7 @@ import (
 	"webce/cmd/web/handlers/admin/controller"
 	admin2 "webce/internal/repositories/models/admins/admin"
 	"webce/internal/repositories/repo/adminrepo"
+	"webce/pkg/lib"
 	"webce/pkg/library/log"
 )
 
@@ -22,16 +23,16 @@ func (g *HandlerManager) GetCreateAdmin() {
 	ad := &admin2.Admin{}
 	err := g.Ctx.ReadForm(ad)
 	if err != nil {
-		g.ApiJson(400, err.Error(), nil)
+		lib.ErrJson(g.Ctx, 400, err.Error())
 		return
 	}
 	err = ad.Validate()
 	if err != nil {
 		log.Log.Error("error to get params: ", err.Error())
-		g.ApiJson(400, "invalid request", nil)
+		lib.ErrJson(g.Ctx, 400, "invalid request")
 		return
 	}
 
 	resp := g.Repo.AddAdmin(ad, []int64{1})
-	g.Api(resp)
+	lib.Json(g.Ctx, resp)
 }

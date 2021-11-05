@@ -2,12 +2,11 @@ package middle
 
 import (
 	"github.com/kataras/iris/v12"
-	"net/http"
 	"strconv"
 	"strings"
 	"webce/internal/repositories/models/admins/roles"
 	"webce/internal/repositories/repo/adminrepo"
-	"webce/pkg/library/apgs"
+	"webce/pkg/lib"
 	"webce/pkg/library/easycasbin"
 	"webce/pkg/library/jwt"
 	"webce/pkg/library/log"
@@ -32,20 +31,20 @@ func AuthAdmin(nocheck ...easycasbin.DontCheckFunc) iris.Handler {
 		authToken := getToken(c.GetHeader("Authorization"))
 		if authToken == "" {
 			log.Log.Error("not auth: ")
-			c.JSON(apgs.ApiReturn(500, "not auth", ""))
+			lib.ErrJson(c, 500, "not auth")
 			return
 		}
 		token, err := jwt.ParseToken(authToken)
 		if err != nil {
 			log.Log.Error("parse token err: ", err)
-			c.JSON(apgs.ApiReturn(500, "error token", ""))
+			lib.ErrJson(c, 500, "error token")
 			return
 		}
 		//username := token["username"].(string)
 		id, ok := token["userId"]
 		if !ok {
 			log.Log.Error("parse token userId err: ", ok)
-			c.JSON(apgs.ApiReturn(500, "error token", ""))
+			lib.ErrJson(c, 500, "error token")
 			return
 		}
 
@@ -53,12 +52,12 @@ func AuthAdmin(nocheck ...easycasbin.DontCheckFunc) iris.Handler {
 		adminId, err := strconv.ParseUint(adminIdStr, 10, 64)
 		if err != nil {
 			log.Log.Error("parse token userId err: ", ok)
-			c.JSON(apgs.ApiReturn(500, "error token", ""))
+			lib.ErrJson(c, 500, "error token")
 			return
 		}
 		admin, err := adminrepo.NewAdminUserRepository().GetAdminById(adminId)
 		if err != nil {
-			c.Redirect("/admin/login", 302)
+			lib.ErrJson(c, 500, "error user")
 			return
 		}
 		// 超级管理员不验证权限
@@ -68,13 +67,13 @@ func AuthAdmin(nocheck ...easycasbin.DontCheckFunc) iris.Handler {
 		}
 
 		if len(admin.Roles) <= 0 || admin.Roles == nil || admin.ID <= 0 {
-			c.JSON(apgs.ApiReturn(500, "permission denied", ""))
+			lib.ErrJson(c, 500, "permission denied")
 			return
 		}
 		err = admin.LoadAdminPolicy(admin.ID)
 		if err != nil {
 			log.Log.Error("load permission error : ", err)
-			c.JSON(apgs.ApiReturn(500, "load permission error", ""))
+			lib.ErrJson(c, 500, "load permission denied")
 			return
 		}
 		var role roles.Roles
@@ -88,12 +87,12 @@ func AuthAdmin(nocheck ...easycasbin.DontCheckFunc) iris.Handler {
 			var err error
 
 			if b, err = easycasbin.GetEnforcer().Enforce(role, p, m); err != nil {
-				c.JSON(apgs.ApiReturn(http.StatusForbidden, "permission denied", ""))
+				lib.ErrJson(c, 500, "permission denied")
 				return
 			}
 
 			if !b {
-				c.JSON(apgs.ApiReturn(http.StatusUnauthorized, "permission denied", ""))
+				lib.ErrJson(c, 500, "permission denied")
 				return
 			}
 		}

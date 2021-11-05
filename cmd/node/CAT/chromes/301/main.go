@@ -46,7 +46,7 @@ func main() {
 		case *runtime.StackTrace:
 			fmt.Printf("Stack Trace, console type > %s \n", ev.Description)
 			for _, frames := range ev.CallFrames {
-				fmt.Printf("Frame line # %s\n", frames.LineNumber)
+				fmt.Printf("Frame line # %d \n", frames.LineNumber)
 			}
 		case *runtime.EventConsoleAPICalled:
 			fmt.Printf("Event Console API Called, console type > %s call:\n", ev.Type)

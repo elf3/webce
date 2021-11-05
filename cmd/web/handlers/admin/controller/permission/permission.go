@@ -5,6 +5,7 @@ import (
 	admin "webce/cmd/web/handlers/admin/controller"
 	"webce/cmd/web/handlers/admin/controller/permission/request"
 	"webce/internal/repositories/models/admins/permissions"
+	"webce/pkg/lib"
 	"webce/pkg/library/page"
 	"webce/pkg/library/sql"
 )
@@ -22,17 +23,17 @@ func (p *HandlerPermission) GetList() {
 	where := iris.Map{}
 	build, args, err := sql.WhereBuild(where)
 	if err != nil {
-		p.ApiError(303, "无法获取正确的参数")
+		lib.ErrJson(p.Ctx, 303, "无法获取正确的参数")
 		return
 	}
 	count := model.GetByCount(build, args)
 	pages := page.NewPagination(p.Ctx.Request(), count)
 	lists, err := model.Lists(build, args, pages.GetPage(), pages.Perineum)
 	if err != nil {
-		p.ApiError(303, build)
+		lib.ErrJson(p.Ctx, 303, err.Error())
 		return
 	}
-	p.ApiJson(200, "", iris.Map{
+	lib.MJson(p.Ctx, 200, "", iris.Map{
 		"lists": lists,
 		"page":  pages.GetPageResp(),
 	})
@@ -42,8 +43,8 @@ func (p *HandlerPermission) PostAdd() {
 	req := request.ReqPermission{}
 	err := p.Ctx.ReadForm(&req)
 	if err != nil {
-		p.ErrorRequest()
+		lib.ErrJson(p.Ctx, 500, "invalid request")
 		return
 	}
-	p.Api(req)
+	lib.Json(p.Ctx, req)
 }

@@ -2,6 +2,7 @@ package node
 
 import (
 	admin "webce/cmd/web/handlers/admin/controller"
+	"webce/pkg/lib"
 )
 
 type HandlerNode struct {
@@ -14,5 +15,5 @@ func NewNode() *HandlerNode {
 func (h *HandlerNode) GetNodeLists() {
 	//node := business.Node{}
 	//node.CreateNode()
-	h.ApiJson(200, "", nil)
+	lib.MJson(h.Ctx, 200, "", nil)
 }
