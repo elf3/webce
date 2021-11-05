@@ -26,12 +26,10 @@ func InitAdapter() {
 	a, err := adapter.NewAdapterByDB(databases.GetDB())
 	if err != nil {
 		log.Log.Fatalf("can not Init: %v", err.Error())
-		return
 	}
 	e, err := casbin.NewSyncedEnforcer("./configs/rbac_model.conf", a)
 	if err != nil {
 		log.Log.Fatalf("can not Init: %v", err.Error())
-		return
 	}
 	// 开启AutoSave机制
 	e.EnableAutoSave(true)
@@ -44,7 +42,6 @@ func InitAdapter() {
 	// 因为开启了AutoSave机制，现在内存中的改变会同步回写到持久层中
 	//e.AddPolicy("admin", "test", "test")
 	Enfocer = e
-	return
 }
 
 type DontCheckFunc func(ctx iris.Context) bool
