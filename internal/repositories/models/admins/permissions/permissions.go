@@ -1,6 +1,7 @@
 package permissions
 
 import (
+	"gorm.io/gorm"
 	"webce/pkg/library/databases"
 )
 
@@ -72,13 +73,14 @@ func (m *Permissions) Create() error {
 
 // Delete 删除权限
 func (m *Permissions) Delete(id uint64) error {
-	if err := databases.DB.Where("id = ?", id).Find(&m).Error; err != nil {
-		return err
+	find := databases.DB.Where("id = ?", id).Find(&m)
+	if find.Error != nil || find.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
 	}
 
-	db := databases.DB.Model(&m).Where("id = ?", id).Delete(&m)
-	if db.Error != nil {
-		return db.Error
+	err := databases.DB.Model(&m).Where("id = ?", id).Delete(&m).Error
+	if err != nil {
+		return err
 	}
 
 	return nil
