@@ -31,19 +31,21 @@ func InitRouter() *iris.Application {
 			"True-Client-Ip",
 		},
 	}))
+	// 重启
+	app.Use(recover2.New())
 	app.Use(middle.LoggerHandler)
 	jwt.InitJwtConf()
 
 	// 初始化DB
 	databases.InitDB()
+	// 初始化 casbin
 	easycasbin.InitAdapter()
 
-	// 重启
-	app.Use(recover2.New())
 	// API 路由
 	api.InitRouter(app)
 	// admin 路由
 	admin.InitRouter(app)
+	// 数据填充
 	migrate.AutoMigrate()
 
 	return app

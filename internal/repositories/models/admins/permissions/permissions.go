@@ -48,16 +48,17 @@ func (m *Permissions) Get(where string, values []interface{}) (*Permissions, err
 }
 
 // Update 更新权限
-func (m *Permissions) Update(id int, data map[string]interface{}) error {
-	find := databases.DB.Model(&m).Where("id = ?", id).Find(&m)
-	if find.Error != nil {
-		return find.Error
+func (m *Permissions) Update(id uint64) (*Permissions, error) {
+	err := databases.DB.Model(&m).Where("id = ?", id).Find(&m).Error
+	if err != nil {
+		return nil, err
 	}
-	save := databases.DB.Model(&m).Updates(data)
-	if save.Error != nil {
-		return save.Error
+
+	err = databases.DB.Model(&m).Where("id = ?", id).Updates(m).Error
+	if err != nil {
+		return nil, err
 	}
-	return nil
+	return m, nil
 }
 
 // Create 更新权限

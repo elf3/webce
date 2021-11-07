@@ -4,6 +4,10 @@ import (
 	"webce/internal/repositories/models/admins/permissions"
 )
 
-type ReqPermission struct {
+type ReqAddPermission struct {
+	permissions.Permissions
+}
+type ReqEditPermission struct {
+	Id uint64 `form:"id" validate:"required" `
 	permissions.Permissions
 }
