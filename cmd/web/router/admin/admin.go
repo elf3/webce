@@ -26,7 +26,9 @@ func InitRouter(app *iris.Application) {
 	app.PartyFunc("/admin", func(p router.Party) {
 		// 登陆后台请求接口
 		p.Post("/login", login.Login)
+		p.Post("/refreshToken", login.RefreshToken)
 	})
+
 
 	// 使用中间件认证
 	ntc := app.Party("/admin")
