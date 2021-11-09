@@ -4,6 +4,7 @@ import (
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/core/router"
 	"github.com/kataras/iris/v12/mvc"
+	"webce/cmd/web/handlers/admin/controller/admin"
 	"webce/cmd/web/handlers/admin/controller/login"
 	"webce/cmd/web/handlers/admin/controller/manager"
 	"webce/cmd/web/handlers/admin/controller/node"
@@ -37,6 +38,7 @@ func InitRouter(app *iris.Application) {
 		mvc.New(ntc.Party("/user")).Handle(manager.NewManager())
 		mvc.New(ntc.Party("/node")).Handle(node.NewNode())
 		mvc.New(ntc.Party("/permission")).Handle(permission.NewPermissionHandler())
+		mvc.New(ntc.Party("/admin")).Handle(admin.NewAdminHandler())
 	}
 
 }

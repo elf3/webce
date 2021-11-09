@@ -64,9 +64,8 @@ func (p *Pagination) LastItem() int64 {
 
 func (p *Pagination) GetPageResp() *PageResponse {
 	return &PageResponse{
-		Total:    p.Total,
-		Perineum: p.Perineum,
-		Page:     p.Page,
+		Total: p.Total,
+		Page:  p.Page,
 	}
 }
 

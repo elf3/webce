@@ -25,7 +25,7 @@ func (g *HandlerManager) GetCreateAdmin() {
 		g.Error(400, err.Error())
 		return
 	}
-	err = ad.Validate()
+	err = g.Validate(ad)
 	if err != nil {
 		log.Log.Error("error to get params: ", err.Error())
 		g.Error(400, "invalid request")
