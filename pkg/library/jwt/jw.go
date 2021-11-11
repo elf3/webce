@@ -22,7 +22,7 @@ func CreateToken(userId, username string) (tokenString string, err error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	claims := make(jwt.MapClaims)
-	claims["exp"] = time.Now().Add(time.Minute * time.Duration(Exp)).Unix()
+	claims["exp"] = time.Now().Add(time.Second * time.Duration(Exp)).Unix()
 	claims["iat"] = time.Now().Unix()
 	claims["username"] = username
 	claims["userId"] = userId

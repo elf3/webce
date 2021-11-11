@@ -6,13 +6,25 @@ import (
 	"github.com/kataras/iris/v12"
 	"strconv"
 	"webce/api/auth"
+	admin "webce/cmd/web/handlers/admin/controller"
 	"webce/cmd/web/handlers/admin/controller/login/request"
 	"webce/pkg/library/jwt"
 	"webce/pkg/library/log"
 	"webce/pkg/library/resp"
 )
 
-func Login(ctx iris.Context) {
+// HandlerLogin 登陆Handler
+type HandlerLogin struct {
+	admin.BaseHandler
+}
+
+// NewHandlerLogin 实例化
+func NewHandlerLogin() *HandlerLogin {
+	return &HandlerLogin{}
+}
+
+// PostLogin  登陆获取token
+func (h *HandlerLogin) PostLogin(ctx iris.Context) {
 	req := request.ReqLogin{}
 	err := ctx.ReadForm(&req)
 	if err != nil {
@@ -27,9 +39,8 @@ func Login(ctx iris.Context) {
 		return
 	}
 
-	addr := ctx.RemoteAddr()
-	auth := auth.AdminAuth{}
-	login, err := auth.Login(req.Username, req.Password, addr)
+	model := auth.AdminAuth{}
+	login, err := model.Login(req.Username, req.Password, ctx.RemoteAddr())
 	if err != nil {
 		resp.Api(ctx, resp.ApiReturn(500, "invalid login", nil))
 		return
@@ -37,10 +48,8 @@ func Login(ctx iris.Context) {
 	resp.Api(ctx, resp.ApiReturn(0, "", login))
 }
 
-
-
-// 刷新token
-func RefreshToken(ctx iris.Context){
+// PostRefreshToken  刷新token
+func (h *HandlerLogin) PostRefreshToken(ctx iris.Context) {
 	token := ctx.GetHeader("token")
 	if token == "" {
 		resp.Api(ctx, resp.ApiReturn(400, "invalid request", nil))
@@ -54,7 +63,7 @@ func RefreshToken(ctx iris.Context){
 		return
 	}
 	// 判定token中是否存在userid
-	if _,ok := claims["userId"]; ! ok{
+	if _, ok := claims["userId"]; !ok {
 		log.Log.Error("parse jwt token exists userId")
 		resp.Api(ctx, resp.ApiReturn(500, "invalid request data", nil))
 		return
