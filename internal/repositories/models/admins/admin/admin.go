@@ -82,7 +82,10 @@ func (u Admin) UpdateAdmin(id uint64, roleIds []int64) (*Admin, error) {
 		return nil, find.Error
 	}
 
-	databases.DB.Model(&admin).Association("Roles").Replace(role)
+	err := databases.DB.Model(&admin).Association("Roles").Replace(role)
+	if err != nil {
+		return nil, err
+	}
 	save := databases.DB.Model(&admin).Where("id = ?", id).Updates(&u)
 
 	if save.Error != nil {
