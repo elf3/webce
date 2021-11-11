@@ -144,11 +144,6 @@ func (r *Roles) DeleteRole(id int) error {
 	if err != nil {
 		return err
 	}
-
-	err = databases.DB.Model(&r).Delete("id = ?", id).Error
-	if err != nil {
-		return err
-	}
 	return nil
 }
 
