@@ -1,7 +1,6 @@
 package admin
 
 import (
-	"fmt"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 	"webce/internal/repositories/models"
@@ -94,7 +93,7 @@ func (u Admin) UpdateAdmin(id uint64, roleIds []int64) (*Admin, error) {
 
 // Delete 删除操作
 func (u Admin) Delete(id int) error {
-	fmt.Println("id: ......... ", id)
+
 	var data Admin
 	databases.DB.Model(&data).Where("id = ?", id).Find(&data)
 

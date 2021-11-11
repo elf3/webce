@@ -11,9 +11,9 @@ import (
 // Roles 角色
 type Roles struct {
 	ID          uint64                    `gorm:"primary_key" json:"id" structs:"id"`
-	Title       string                    `gorm:"type:varchar(50);unique_index" json:"title"` // 角色标题
-	Description string                    `gorm:"type:char(64);" json:"description"`          // 角色注解
-	Permissions []permissions.Permissions `gorm:"many2many:role_menu;" json:"permissions" `
+	Title       string                    `gorm:"type:varchar(50);unique_index" json:"title" form:"title"` // 角色标题
+	Description string                    `gorm:"type:char(64);" json:"description" form:"description"`    // 角色注解
+	Permissions []permissions.Permissions `gorm:"many2many:role_menu;" json:"permissions" `                // 关联权限
 }
 
 func (r Roles) Get(whereSql string, vals []interface{}) (Roles, error) {
@@ -25,7 +25,7 @@ func (r Roles) Get(whereSql string, vals []interface{}) (Roles, error) {
 }
 
 // GetPerRoleIds 获取权限绑定的角色ID列表
-func (m *Roles) GetPerRoleIds(id int) []int {
+func (r *Roles) GetPerRoleIds(id int) []int {
 	var permission permissions.Permissions
 	var role []Roles
 
@@ -54,10 +54,10 @@ func (r *Roles) FindByID(id int) (bool, error) {
 	return false, nil
 }
 
-// GetCount 依据传入的条件查找条数
-func (r *Roles) GetCount(whereSql string, vals []interface{}) (int64, error) {
+// GetByCount 依据传入的条件查找条数
+func (r *Roles) GetByCount(whereSql string, vals []interface{}) (int64, error) {
 	var count int64
-	if err := databases.DB.Model(&Roles{}).Where(whereSql, vals).Count(&count).Error; err != nil {
+	if err := databases.DB.Model(&Roles{}).Where(whereSql, vals...).Count(&count).Error; err != nil {
 		return 0, err
 	}
 	return count, nil
@@ -97,53 +97,55 @@ func (r *Roles) CheckRoleName(name string) (bool, error) {
 }
 
 // EditRole 编辑角色
-func (r Roles) EditRole(id int, data map[string]interface{}) error {
+func (r Roles) EditRole(id uint64, permissionsIds []uint64) (*Roles, error) {
 
-	var permsiss = make([]permissions.Permissions, 10)
-	if err2 := databases.DB.Where("id in (?)", data["permissions_id"]).Find(&permsiss).Error; err2 != nil {
-		return errors.New("无法找到该权限，请刷新后重试")
+	var persist = make([]permissions.Permissions, 10)
+	if err := databases.DB.Where("id in (?)", permissionsIds).Find(&persist).Error; err != nil {
+		return nil, errors.New("无法找到该权限，请刷新后重试")
+	}
+	var findRole Roles
+	err := databases.DB.Model(&findRole).Where("id = ?", id).Find(&findRole).Error
+	if err != nil {
+		return nil, err
+	}
+	err = databases.DB.Model(&findRole).Association("Permissions").Replace(persist)
+	if err != nil {
+		return nil, errors.New("无法更新权限")
 	}
 
-	if err := databases.DB.Model(&r).Where("id = ?", id).Find(&r).Error; err != nil {
-		return err
+	if update := databases.DB.Model(&findRole).Updates(r).Error; update != nil {
+		return nil, update
 	}
-
-	if err := databases.DB.Model(&r).Association("Permissions").Replace(permsiss).Error; err != nil {
-		return errors.New("123")
-	}
-
-	if update := databases.DB.Model(&r).Updates(r).Error; update != nil {
-		return update
-	}
-	return nil
+	r.ID = id
+	return &r, nil
 
 }
 
 // AddRole 添加角色
-func (r *Roles) AddRole(data map[string]interface{}) (int, error) {
-	role := Roles{
-		Title:       data["title"].(string),
-		Description: data["description"].(string),
-	}
+func (r *Roles) AddRole(permissionIds []uint64) (*Roles, error) {
+
 	var per []permissions.Permissions
-	databases.DB.Where("id in (?)", data["permissions_id"]).Find(&per)
-	err := databases.DB.Create(&role).Association("Permissions").Append(&per).Error
+	err := databases.DB.Where("id in (?)", permissionIds).Find(&per).Error
 	if err != nil {
-		return 0, errors.New("不晓得什么鬼")
+		return nil, err
 	}
-	return int(role.ID), nil
+	err = databases.DB.Create(&r).Association("Permissions").Append(&per)
+	if err != nil {
+		return nil, errors.New("不晓得什么鬼")
+	}
+	return r, nil
 }
 
 // DeleteRole 删除角色
 func (r *Roles) DeleteRole(id int) error {
-
-	databases.DB.Where("id = ?", id).First(&r)
-	err := databases.DB.Model(&r).Association("Permissions").Delete()
+	var findRole Roles
+	databases.DB.Model(&r).Where("id = ?", id).First(&findRole)
+	err := databases.DB.Model(&findRole).Select("Permissions").Delete(&findRole).Error
 	if err != nil {
 		return err
 	}
 
-	err = databases.DB.Where("id = ?", id).Delete(&r).Error
+	err = databases.DB.Model(&r).Delete("id = ?", id).Error
 	if err != nil {
 		return err
 	}
@@ -172,14 +174,14 @@ func (r *Roles) GetRolesAll() ([]*Roles, error) {
 }
 
 // LoadAllPolicy 加载所有的角色策略
-func (a *Roles) LoadAllPolicy() error {
-	roles, err := a.GetRolesAll()
+func (r *Roles) LoadAllPolicy() error {
+	roles, err := r.GetRolesAll()
 	if err != nil {
 		return err
 	}
 
 	for _, role := range roles {
-		err = a.LoadPolicy(int(role.ID))
+		err = r.LoadPolicy(int(role.ID))
 		if err != nil {
 			return err
 		}
@@ -188,9 +190,9 @@ func (a *Roles) LoadAllPolicy() error {
 }
 
 // LoadPolicy 加载角色权限策略
-func (a *Roles) LoadPolicy(id int) error {
+func (r *Roles) LoadPolicy(id int) error {
 
-	role, err := a.GetRoleByID(id)
+	role, err := r.GetRoleByID(id)
 	if err != nil {
 		return err
 	}

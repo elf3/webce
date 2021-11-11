@@ -57,7 +57,7 @@ func (p *HandlerPermission) GetDetail() {
 	}
 	data, err := p2.Get(build, args)
 	if err != nil {
-		p.Error(400, "delete error")
+		p.Error(400, "get detail error")
 		return
 	}
 	p.Success(data)
