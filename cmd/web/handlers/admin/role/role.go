@@ -1,36 +1,41 @@
-package admin
+package role
 
 import (
 	"github.com/kataras/iris/v12"
-	base "webce/cmd/web/handlers/admin/controller"
-	"webce/cmd/web/handlers/admin/controller/admin/request"
-	admin2 "webce/internal/repositories/models/admins/admin"
+	base "webce/cmd/web/handlers/admin"
+	"webce/cmd/web/handlers/admin/role/request"
+	"webce/internal/repositories/models/admins/roles"
+
 	"webce/pkg/library/log"
 	"webce/pkg/library/page"
 	"webce/pkg/library/sql"
 )
 
-type HandlerAdmin struct {
+type HandlerRole struct {
 	base.BaseHandler
 }
 
-func NewAdminHandler() *HandlerAdmin {
-	return &HandlerAdmin{}
+func NewRoleHandler() *HandlerRole {
+	return &HandlerRole{}
 }
 
-// GetList @Tags 管理员
-// @Router /admin/admin/list [get]
-func (p *HandlerAdmin) GetList() {
-	model := admin2.Admin{}
+// GetList @Tags 角色管理
+// @Router /admin/role/list [get]
+func (p *HandlerRole) GetList() {
+	model := roles.Roles{}
 	where := iris.Map{}
 	build, args, err := sql.WhereBuild(where)
 	if err != nil {
 		p.Error(303, "无法获取正确的参数")
 		return
 	}
-	count := model.GetByCount(build, args)
+	count, err := model.GetByCount(build, args)
+	if err != nil {
+		p.Error(304, "分页参数错误")
+		return
+	}
 	pages := page.NewPagination(p.Ctx.Request(), count)
-	lists, err := model.Lists(build, args, pages.GetPage(), pages.Perineum)
+	lists, err := model.GetRolesPage(build, args, pages.GetPage(), pages.Perineum)
 	if err != nil {
 		p.Error(303, err.Error())
 		return
@@ -38,16 +43,16 @@ func (p *HandlerAdmin) GetList() {
 	p.Page(lists, pages.GetPageResp())
 }
 
-// GetDetail @Tags 管理员
-// @Router /admin/admin/detail [get]
-func (p *HandlerAdmin) GetDetail() {
+// GetDetail @Tags 角色管理
+// @Router /admin/role/detail [get]
+func (p *HandlerRole) GetDetail() {
 	id := p.Ctx.URLParamUint64("id")
 
 	if id <= 0 {
 		p.Error(300, "please check id ")
 		return
 	}
-	p2 := admin2.Admin{}
+	r := roles.Roles{}
 	build, args, err := sql.WhereBuild(iris.Map{
 		"id": id,
 	})
@@ -55,7 +60,7 @@ func (p *HandlerAdmin) GetDetail() {
 		p.Error(300, "please check search condition ")
 		return
 	}
-	data, err := p2.Get(build, args)
+	data, err := r.Get(build, args)
 	if err != nil {
 		p.Error(400, "get detail error")
 		return
@@ -63,10 +68,10 @@ func (p *HandlerAdmin) GetDetail() {
 	p.Success(data)
 }
 
-// PostAdd @Tags 管理员
-// @Router /admin/admin/add [post]
-func (p *HandlerAdmin) PostAdd() {
-	req := request.ReqAddAdmin{}
+// PostAdd @Tags 角色管理
+// @Router /admin/role/add [post]
+func (p *HandlerRole) PostAdd() {
+	req := request.ReqAddRole{}
 	err := p.Ctx.ReadForm(&req)
 	if err != nil {
 		log.Log.Error("read form request:", err)
@@ -79,7 +84,7 @@ func (p *HandlerAdmin) PostAdd() {
 		p.Error(500, "invalid request")
 		return
 	}
-	create, err := req.Admin.Create(req.RoleIds)
+	create, err := req.Roles.AddRole(req.PermissionIds)
 	if err != nil {
 		p.Error(300, err.Error())
 		return
@@ -88,10 +93,10 @@ func (p *HandlerAdmin) PostAdd() {
 	p.Success(create)
 }
 
-// PostEdit @Tags 管理员
-// @Router /admin/admin/edit [post]
-func (p *HandlerAdmin) PostEdit() {
-	req := request.ReqEditAdmin{}
+// PostEdit @Tags 角色管理
+// @Router /admin/role/edit [post]
+func (p *HandlerRole) PostEdit() {
+	req := request.ReqEditRole{}
 	err := p.Ctx.ReadForm(&req)
 	if err != nil {
 		log.Log.Error(" read form request ", err)
@@ -104,7 +109,7 @@ func (p *HandlerAdmin) PostEdit() {
 		p.Error(500, "invalid request")
 		return
 	}
-	update, err := req.Admin.UpdateAdmin(req.ID, req.RoleIds)
+	update, err := req.Roles.EditRole(req.Id, req.PermissionIds)
 	if err != nil {
 		p.Error(300, err.Error())
 		return
@@ -112,9 +117,9 @@ func (p *HandlerAdmin) PostEdit() {
 	p.Success(update)
 }
 
-// PostDelete @Tags 管理员
-// @Router /admin/admin/delete [post]
-func (p *HandlerAdmin) PostDelete() {
+// PostDelete @Tags 角色管理
+// @Router /admin/role/delete [post]
+func (p *HandlerRole) PostDelete() {
 	id, err := p.Ctx.PostValueInt("id")
 
 	if id <= 0 || err != nil {
@@ -122,7 +127,8 @@ func (p *HandlerAdmin) PostDelete() {
 		return
 	}
 
-	err = (admin2.Admin{}).Delete(id)
+	r := roles.Roles{}
+	err = r.DeleteRole(id)
 	if err != nil {
 		log.Log.Error("delete error : ", err)
 		p.Error(400, "delete error")

@@ -17,18 +17,18 @@ type Node struct {
 
 // CreateNode 创建节点
 func (n *Node) CreateNode() (*Node, error) {
-	create := databases.DB.Create(n)
-	if create.Error != nil {
-		return nil, create.Error
+	err := databases.DB.Model(n).Create(n).Error
+	if err != nil {
+		return nil, err
 	}
 	return n, nil
 }
 
 // SyncNode 同步节点
 func (n *Node) SyncNode() (*Node, error) {
-	first := databases.DB.Model(n).First(n)
-	if first.Error != nil {
-		return nil, first.Error
+	err := databases.DB.Model(n).First(n).Error
+	if err != nil {
+		return nil, err
 	}
 	return n, nil
 }
@@ -39,20 +39,26 @@ func (n *Node) Delete(id int64) error {
 	if first.Error != nil {
 		return errors.New("not found node")
 	}
-	db := databases.DB.Model(&n).Where("id = ?", id).Delete(&n)
-	if db.Error != nil {
-		return db.Error
+	err := databases.DB.Model(&n).Where("id = ?", id).Delete(&n).Error
+	if err != nil {
+		return err
 	}
 
 	return nil
 }
 
-// GetNodePage 获取节点列表
-func (n *Node) GetNodePage(where map[string]interface{}, offset, limit int) ([]*Node, error) {
+// GetPage  获取节点列表
+func (n *Node) GetPage(where map[string]interface{}, vals []interface{}, offset, limit int) ([]*Node, error) {
 	list := make([]*Node, 0)
-	find := databases.DB.Model(n).Where(where).Offset(offset).Limit(limit).Find(list)
+	find := databases.DB.Model(n).Where(where, vals...).Offset(offset).Limit(limit).Find(list)
 	if find.Error != nil && find.Error != gorm.ErrRecordNotFound {
 		return nil, find.Error
 	}
 	return list, nil
+}
+
+// GetByCount 获取有多少条记录
+func (n *Node) GetByCount(whereSql string, vals []interface{}) (count int64) {
+	databases.DB.Model(n).Where(whereSql, vals...).Count(&count)
+	return
 }

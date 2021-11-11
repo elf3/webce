@@ -1,7 +1,7 @@
 package node
 
 import (
-	admin "webce/cmd/web/handlers/admin/controller"
+	"webce/cmd/web/handlers/admin"
 	"webce/pkg/library/resp"
 )
 

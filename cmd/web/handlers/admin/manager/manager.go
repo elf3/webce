@@ -1,14 +1,14 @@
 package manager
 
 import (
-	"webce/cmd/web/handlers/admin/controller"
+	"webce/cmd/web/handlers/admin"
 	admin2 "webce/internal/repositories/models/admins/admin"
 	"webce/internal/repositories/repo/adminrepo"
 	"webce/pkg/library/log"
 )
 
 type HandlerManager struct {
-	admin.BaseHandler
+	admin.admin
 	Repo *adminrepo.AdminUserRepository
 }
 

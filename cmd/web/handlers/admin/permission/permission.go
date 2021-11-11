@@ -2,8 +2,8 @@ package permission
 
 import (
 	"github.com/kataras/iris/v12"
-	admin "webce/cmd/web/handlers/admin/controller"
-	"webce/cmd/web/handlers/admin/controller/permission/request"
+	"webce/cmd/web/handlers/admin"
+	"webce/cmd/web/handlers/admin/permission/request"
 	"webce/internal/repositories/models/admins/permissions"
 	"webce/pkg/library/log"
 	"webce/pkg/library/page"
