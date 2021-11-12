@@ -8,7 +8,7 @@ import (
 )
 
 type HandlerManager struct {
-	admin.admin
+	admin.BaseHandler
 	Repo *adminrepo.AdminUserRepository
 }
 
