@@ -15,11 +15,14 @@ import (
 // HandlerLogin 登陆Handler
 type HandlerLogin struct {
 	admin.BaseHandler
+	api *auth.AdminAuth
 }
 
 // NewHandlerLogin 实例化
 func NewHandlerLogin() *HandlerLogin {
-	return &HandlerLogin{}
+	return &HandlerLogin{
+		api: &auth.AdminAuth{},
+	}
 }
 
 // PostLogin  登陆获取token
@@ -38,8 +41,7 @@ func (h *HandlerLogin) PostLogin(ctx iris.Context) {
 		return
 	}
 
-	model := auth.AdminAuth{}
-	login, err := model.Login(req.Username, req.Password, ctx.RemoteAddr())
+	login, err := h.api.Login(req.Username, req.Password, ctx.RemoteAddr())
 	if err != nil {
 		h.Error(500, "invalid login")
 		return

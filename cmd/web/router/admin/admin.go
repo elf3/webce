@@ -26,7 +26,7 @@ func InitRouter(app *iris.Application) {
 	// 免登陆的路由
 	app.PartyFunc("/admin", func(p router.Party) {
 		// 登陆后台请求接口
-		mvc.New(app.Party("/user")).Handle(login.NewHandlerLogin())
+		mvc.New(p.Party("/user")).Handle(login.NewHandlerLogin())
 	})
 
 	// 使用中间件认证
