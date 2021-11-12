@@ -20,9 +20,7 @@ type HandlerLogin struct {
 
 // NewHandlerLogin 实例化
 func NewHandlerLogin() *HandlerLogin {
-	return &HandlerLogin{
-		api: &auth.AdminAuth{},
-	}
+	return &HandlerLogin{}
 }
 
 // PostLogin  登陆获取token
