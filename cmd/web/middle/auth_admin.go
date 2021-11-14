@@ -4,6 +4,7 @@ import (
 	"github.com/kataras/iris/v12"
 	"strconv"
 	"strings"
+	api "webce/api/admin"
 	"webce/api/role"
 	"webce/internal/repositories/repo/adminrepo"
 	"webce/pkg/library/easycasbin"
@@ -55,6 +56,7 @@ func AuthAdmin(nocheck ...easycasbin.DontCheckFunc) iris.Handler {
 			resp.Error(c, 500, "error token")
 			return
 		}
+		apiAdmin := api.ApiAdmin{}
 		admin, err := adminrepo.NewAdminUserRepository().GetAdminById(adminId)
 		if err != nil {
 			resp.Error(c, 500, "error user")
@@ -70,7 +72,7 @@ func AuthAdmin(nocheck ...easycasbin.DontCheckFunc) iris.Handler {
 			resp.Error(c, 500, "permission denied")
 			return
 		}
-		err = admin.LoadAdminPolicy(admin.ID)
+		err = apiAdmin.LoadAdminPolicy(admin.ID)
 		if err != nil {
 			log.Log.Error("load permission error : ", err)
 			resp.Error(c, 500, "load permission denied")

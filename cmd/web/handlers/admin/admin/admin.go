@@ -2,9 +2,9 @@ package admin
 
 import (
 	"github.com/kataras/iris/v12"
+	api "webce/api/admin"
 	base "webce/cmd/web/handlers/admin"
 	"webce/cmd/web/handlers/admin/admin/request"
-	admin2 "webce/internal/repositories/models/admins/admin"
 	"webce/pkg/library/log"
 	"webce/pkg/library/page"
 	"webce/pkg/library/sql"
@@ -12,6 +12,7 @@ import (
 
 type HandlerAdmin struct {
 	base.BaseHandler
+	api api.ApiAdmin
 }
 
 func NewAdminHandler() *HandlerAdmin {
@@ -21,16 +22,15 @@ func NewAdminHandler() *HandlerAdmin {
 // GetList @Tags 管理员
 // @Router /admin/admin/list [get]
 func (p *HandlerAdmin) GetList() {
-	model := admin2.Admin{}
 	where := iris.Map{}
 	build, args, err := sql.WhereBuild(where)
 	if err != nil {
 		p.Error(303, "无法获取正确的参数")
 		return
 	}
-	count := model.GetByCount(build, args)
+	count := p.api.GetByCount(build, args)
 	pages := page.NewPagination(p.Ctx.Request(), count)
-	lists, err := model.Lists(build, args, pages.GetPage(), pages.Perineum)
+	lists, err := p.api.Lists(build, args, pages.GetPage(), pages.Perineum)
 	if err != nil {
 		p.Error(303, err.Error())
 		return
@@ -47,7 +47,6 @@ func (p *HandlerAdmin) GetDetail() {
 		p.Error(300, "please check id ")
 		return
 	}
-	p2 := admin2.Admin{}
 	build, args, err := sql.WhereBuild(iris.Map{
 		"id": id,
 	})
@@ -55,7 +54,7 @@ func (p *HandlerAdmin) GetDetail() {
 		p.Error(300, "please check search condition ")
 		return
 	}
-	data, err := p2.Get(build, args)
+	data, err := p.api.Get(build, args)
 	if err != nil {
 		p.Error(400, "get detail error")
 		return
@@ -79,7 +78,7 @@ func (p *HandlerAdmin) PostAdd() {
 		p.Error(500, "invalid request")
 		return
 	}
-	create, err := req.Admin.Create(req.RoleIds)
+	create, err := p.api.Create(req.RoleIds, &req.Admin)
 	if err != nil {
 		p.Error(300, err.Error())
 		return
@@ -104,7 +103,7 @@ func (p *HandlerAdmin) PostEdit() {
 		p.Error(500, "invalid request")
 		return
 	}
-	update, err := req.Admin.UpdateAdmin(req.ID, req.RoleIds)
+	update, err := p.api.UpdateAdmin(req.ID, req.RoleIds, req.Admin)
 	if err != nil {
 		p.Error(300, err.Error())
 		return
@@ -122,7 +121,7 @@ func (p *HandlerAdmin) PostDelete() {
 		return
 	}
 
-	err = (admin2.Admin{}).Delete(id)
+	err = p.api.Delete(id)
 	if err != nil {
 		log.Log.Error("delete error : ", err)
 		p.Error(400, "delete error")

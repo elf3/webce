@@ -3,6 +3,7 @@ package adminrepo
 import (
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
+	api "webce/api/admin"
 	"webce/internal/repositories/models/admins/admin"
 	"webce/pkg/library/databases"
 	"webce/pkg/library/log"
@@ -53,7 +54,7 @@ func (a AdminUserRepository) AddAdmin(add *admin.Admin, roleIds []int64) *resp.R
 		return resp.ApiReturn(500, "error encrypt password", nil)
 	}
 	add.Password = passCode
-	create, err := findAdmin.Create(roleIds)
+	create, err := api.ApiAdmin{}.Create(roleIds, add)
 	if err != nil {
 		log.Log.Error("create admin err: ", err.Error())
 		return resp.ApiReturn(400, "create admin err", nil)
@@ -62,5 +63,5 @@ func (a AdminUserRepository) AddAdmin(add *admin.Admin, roleIds []int64) *resp.R
 }
 
 func (a AdminUserRepository) GetAdminById(id uint64) (admin.Admin, error) {
-	return a.Admin.GetById(id)
+	return api.ApiAdmin{}.GetById(id)
 }
