@@ -6,7 +6,6 @@ import (
 	"strings"
 	api "webce/api/admin"
 	"webce/api/role"
-	"webce/internal/repositories/repo/adminrepo"
 	"webce/pkg/library/easycasbin"
 	"webce/pkg/library/jwt"
 	"webce/pkg/library/log"
@@ -57,7 +56,7 @@ func AuthAdmin(nocheck ...easycasbin.DontCheckFunc) iris.Handler {
 			return
 		}
 		apiAdmin := api.ApiAdmin{}
-		admin, err := adminrepo.NewAdminUserRepository().GetAdminById(adminId)
+		admin, err := apiAdmin.GetById(adminId)
 		if err != nil {
 			resp.Error(c, 500, "error user")
 			return
