@@ -2,9 +2,9 @@ package permission
 
 import (
 	"github.com/kataras/iris/v12"
+	"webce/api/permission"
 	"webce/cmd/web/handlers/admin"
 	"webce/cmd/web/handlers/admin/permission/request"
-	"webce/internal/repositories/models/admins/permissions"
 	"webce/pkg/library/log"
 	"webce/pkg/library/page"
 	"webce/pkg/library/sql"
@@ -12,6 +12,7 @@ import (
 
 type HandlerPermission struct {
 	admin.BaseHandler
+	api permission.ApiPermission
 }
 
 func NewPermissionHandler() *HandlerPermission {
@@ -20,100 +21,97 @@ func NewPermissionHandler() *HandlerPermission {
 
 // GetList @Tags 权限管理
 // @Router /admin/permission/list [get]
-func (p *HandlerPermission) GetList() {
-	model := permissions.Permissions{}
+func (w *HandlerPermission) GetList() {
 	where := iris.Map{}
 	build, args, err := sql.WhereBuild(where)
 	if err != nil {
-		p.Error(303, "无法获取正确的参数")
+		w.Error(303, "无法获取正确的参数")
 		return
 	}
-	count := model.GetByCount(build, args)
-	pages := page.NewPagination(p.Ctx.Request(), count)
-	lists, err := model.Lists(build, args, pages.GetPage(), pages.Perineum)
+	count := w.api.GetByCount(build, args)
+	pages := page.NewPagination(w.Ctx.Request(), count)
+	lists, err := w.api.Lists(build, args, pages.GetPage(), pages.Perineum)
 	if err != nil {
-		p.Error(303, err.Error())
+		w.Error(303, err.Error())
 		return
 	}
-	p.Page(lists, pages.GetPageResp())
+	w.Page(lists, pages.GetPageResp())
 }
 
 // GetDetail @Tags 权限管理
 // @Router /admin/permission/detail [get]
-func (p *HandlerPermission) GetDetail() {
-	id := p.Ctx.URLParamUint64("id")
+func (w *HandlerPermission) GetDetail() {
+	id := w.Ctx.URLParamUint64("id")
 
 	if id <= 0 {
-		p.Error(300, "please check id ")
+		w.Error(300, "please check id ")
 		return
 	}
-	p2 := permissions.Permissions{}
 	build, args, err := sql.WhereBuild(iris.Map{
 		"id": id,
 	})
 	if err != nil {
-		p.Error(300, "please check search condition ")
+		w.Error(300, "please check search condition ")
 		return
 	}
-	data, err := p2.Get(build, args)
+	data, err := w.api.Get(build, args)
 	if err != nil {
-		p.Error(400, "get detail error")
+		w.Error(400, "get detail error")
 		return
 	}
-	p.Success(data)
+	w.Success(data)
 }
 
 // PostAdd @Tags 权限管理
 // @Router /admin/permission/add [post]
-func (p *HandlerPermission) PostAdd() {
+func (w *HandlerPermission) PostAdd() {
 	req := request.ReqAddPermission{}
-	err := p.Ctx.ReadForm(&req)
+	err := w.Ctx.ReadForm(&req)
 	if err != nil {
-		p.Error(500, "invalid request")
+		w.Error(500, "invalid request")
 		return
 	}
-	err = req.Permissions.Create()
+	err = w.api.Create(req.Permissions)
 	if err != nil {
-		p.Error(300, err.Error())
+		w.Error(300, err.Error())
 		return
 	}
 
-	p.Success(req)
+	w.Success(req)
 }
 
 // PostEdit @Tags 权限管理
 // @Router /admin/permission/edit [post]
-func (p *HandlerPermission) PostEdit() {
+func (w *HandlerPermission) PostEdit() {
 	req := request.ReqEditPermission{}
-	err := p.Ctx.ReadForm(&req)
+	err := w.Ctx.ReadForm(&req)
 	if err != nil {
 		log.Log.Error(" invalid request ", err)
-		p.Error(500, "invalid request")
+		w.Error(500, "invalid request")
 		return
 	}
 
-	update, err := req.Permissions.Update(req.Id)
+	update, err := w.api.Update(req.Id, req.Permissions)
 	if err != nil {
-		p.Error(300, err.Error())
+		w.Error(300, err.Error())
 		return
 	}
-	p.Success(update)
+	w.Success(update)
 }
 
 // PostDelete @Tags 权限管理
 // @Router /admin/permission/delete [post]
-func (p *HandlerPermission) PostDelete() {
-	id, err := p.Ctx.PostValueInt64("id")
+func (w *HandlerPermission) PostDelete() {
+	id, err := w.Ctx.PostValueInt64("id")
 
 	if id <= 0 || err != nil {
-		p.Error(300, "please check id ")
+		w.Error(300, "please check id ")
 		return
 	}
-	p2 := permissions.Permissions{}
-	err = p2.Delete(uint64(id))
+	err = w.api.Delete(uint64(id))
 	if err != nil {
-		p.Error(400, "delete error")
+		w.Error(400, "delete error")
 		return
 	}
-	p.Success(p2)
+	w.Success("success")
 }
