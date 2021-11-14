@@ -4,7 +4,7 @@ import (
 	"github.com/kataras/iris/v12"
 	"strconv"
 	"strings"
-	"webce/internal/repositories/models/admins/roles"
+	"webce/api/role"
 	"webce/internal/repositories/repo/adminrepo"
 	"webce/pkg/library/easycasbin"
 	"webce/pkg/library/jwt"
@@ -76,7 +76,7 @@ func AuthAdmin(nocheck ...easycasbin.DontCheckFunc) iris.Handler {
 			resp.Error(c, 500, "load permission denied")
 			return
 		}
-		var role roles.Roles
+		var role role.ApiRole
 		_ = role.LoadAllPolicy()
 
 		for _, i2 := range admin.Roles {

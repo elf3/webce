@@ -2,10 +2,9 @@ package role
 
 import (
 	"github.com/kataras/iris/v12"
+	"webce/api/role"
 	base "webce/cmd/web/handlers/admin"
 	"webce/cmd/web/handlers/admin/role/request"
-	"webce/internal/repositories/models/admins/roles"
-
 	"webce/pkg/library/log"
 	"webce/pkg/library/page"
 	"webce/pkg/library/sql"
@@ -13,6 +12,7 @@ import (
 
 type HandlerRole struct {
 	base.BaseHandler
+	api role.ApiRole
 }
 
 func NewRoleHandler() *HandlerRole {
@@ -22,20 +22,19 @@ func NewRoleHandler() *HandlerRole {
 // GetList @Tags 角色管理
 // @Router /admin/role/list [get]
 func (p *HandlerRole) GetList() {
-	model := roles.Roles{}
 	where := iris.Map{}
 	build, args, err := sql.WhereBuild(where)
 	if err != nil {
 		p.Error(303, "无法获取正确的参数")
 		return
 	}
-	count, err := model.GetByCount(build, args)
+	count, err := p.api.GetByCount(build, args)
 	if err != nil {
 		p.Error(304, "分页参数错误")
 		return
 	}
 	pages := page.NewPagination(p.Ctx.Request(), count)
-	lists, err := model.GetRolesPage(build, args, pages.GetPage(), pages.Perineum)
+	lists, err := p.api.GetRolesPage(build, args, pages.GetPage(), pages.Perineum)
 	if err != nil {
 		p.Error(303, err.Error())
 		return
@@ -52,7 +51,6 @@ func (p *HandlerRole) GetDetail() {
 		p.Error(300, "please check id ")
 		return
 	}
-	r := roles.Roles{}
 	build, args, err := sql.WhereBuild(iris.Map{
 		"id": id,
 	})
@@ -60,7 +58,7 @@ func (p *HandlerRole) GetDetail() {
 		p.Error(300, "please check search condition ")
 		return
 	}
-	data, err := r.Get(build, args)
+	data, err := p.api.Get(build, args)
 	if err != nil {
 		p.Error(400, "get detail error")
 		return
@@ -84,7 +82,7 @@ func (p *HandlerRole) PostAdd() {
 		p.Error(500, "invalid request")
 		return
 	}
-	create, err := req.Roles.AddRole(req.PermissionIds)
+	create, err := p.api.AddRole(req.PermissionIds, req.Roles)
 	if err != nil {
 		p.Error(300, err.Error())
 		return
@@ -109,7 +107,7 @@ func (p *HandlerRole) PostEdit() {
 		p.Error(500, "invalid request")
 		return
 	}
-	update, err := req.Roles.EditRole(req.Id, req.PermissionIds)
+	update, err := p.api.EditRole(req.Id, req.PermissionIds, req.Roles)
 	if err != nil {
 		p.Error(300, err.Error())
 		return
@@ -127,8 +125,7 @@ func (p *HandlerRole) PostDelete() {
 		return
 	}
 
-	r := roles.Roles{}
-	err = r.DeleteRole(id)
+	err = p.api.DeleteRole(id)
 	if err != nil {
 		log.Log.Error("delete error : ", err)
 		p.Error(400, "delete error")
