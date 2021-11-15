@@ -8,10 +8,10 @@ type BaseRepository struct {
 	model *gorm.DB
 }
 
-func NewRepository(model *gorm.DB) (Repository, error) {
+func NewRepository(model *gorm.DB) Repository {
 	return &BaseRepository{
 		model: model,
-	}, nil
+	}
 }
 
 func (b *BaseRepository) Find(id int64) (map[string]interface{}, error) {

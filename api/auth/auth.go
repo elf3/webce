@@ -16,6 +16,7 @@ type AdminAuth struct {
 func (a *AdminAuth) Login(username, password, ip string) (*response.LoginResponse, error) {
 	repo := adminrepo.NewAdminUserRepository()
 	resp, err := repo.Login(username, password)
+
 	if err != nil {
 		log.Log.Error("login err: ", err)
 		return nil, errors.New("登陆错误，请重试")

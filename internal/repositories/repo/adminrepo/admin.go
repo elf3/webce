@@ -15,7 +15,7 @@ type AdminUserRepository struct {
 
 func NewAdminUserRepository() *AdminUserRepository {
 	var model = admin.Admin{}
-	newRepository, _ := repository.NewRepository(
+	newRepository := repository.NewRepository(
 		databases.GetDB().Model(&model),
 	)
 	return &AdminUserRepository{
