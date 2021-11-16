@@ -3,6 +3,7 @@ package admin
 import (
 	"github.com/kataras/iris/v12"
 	"webce/pkg/lib"
+	"webce/pkg/library/page"
 	"webce/pkg/library/resp"
 )
 
@@ -30,7 +31,7 @@ func (b BaseHandler) Msg(message string) {
 	}
 }
 
-func (b BaseHandler) Page(lists interface{}, page interface{}) {
+func (b BaseHandler) Page(lists interface{}, page *page.PageResponse) {
 	_, err := b.Ctx.JSON(resp.ApiReturn(200, "", iris.Map{
 		"lists": lists,
 		"page":  page,

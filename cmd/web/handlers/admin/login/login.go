@@ -24,6 +24,7 @@ func NewHandlerLogin() *HandlerLogin {
 }
 
 // PostLogin  登陆获取token
+// @Router /admin/login [post]
 func (h *HandlerLogin) PostLogin(ctx iris.Context) {
 	req := request.ReqLogin{}
 	err := ctx.ReadForm(&req)
@@ -48,6 +49,7 @@ func (h *HandlerLogin) PostLogin(ctx iris.Context) {
 }
 
 // PostRefreshToken  刷新token
+// @Router /admin/refresh/token [post]
 func (h *HandlerLogin) PostRefreshToken(ctx iris.Context) {
 	token := ctx.GetHeader("token")
 	if token == "" {
