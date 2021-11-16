@@ -22,7 +22,7 @@ func NewAdminHandler() *HandlerAdmin {
 // GetList @Tags 管理员
 // @Router /admin/admin/list [get]
 func (p *HandlerAdmin) GetList() {
-	where := iris.Map{}
+	where := request.GetAdminSearchMap(p.Ctx)
 	build, args, err := sql.WhereBuild(where)
 	if err != nil {
 		p.Error(303, "无法获取正确的参数")
