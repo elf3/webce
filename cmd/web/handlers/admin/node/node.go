@@ -39,6 +39,24 @@ func (w HandlerNode) GetLists() {
 	w.Page(getPage, pages.GetPageResp())
 }
 
+// GetDetail 获取节点列表
+// @Router /admin/node/detail [get]
+func (w HandlerNode) GetDetail() {
+	id, err := w.Ctx.PostValueInt64("id")
+
+	if id <= 0 || err != nil {
+		w.Error(300, "please check id ")
+		return
+	}
+	detail := w.api.GetDetail(id)
+	if detail != nil {
+		w.Error(400, "can't find record")
+		return
+	}
+
+	w.Success(detail)
+}
+
 // PostAdd 添加节点
 // @Router /admin/node/add [post]
 func (w HandlerNode) PostAdd() {

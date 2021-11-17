@@ -60,10 +60,10 @@ func (a ApiNode) Delete(id int64) error {
 }
 
 // GetPage  获取节点列表
-func (a ApiNode) GetPage(where string, vals []interface{}, offset, limit int) ([]business.Node, error) {
+func (a ApiNode) GetPage(where string, values []interface{}, offset, limit int) ([]business.Node, error) {
 	list := make([]business.Node, 0)
 	n := business.Node{}
-	find := databases.DB.Model(&n).Where(where, vals...).Offset(offset).Limit(limit).Find(&list)
+	find := databases.DB.Model(&n).Where(where, values...).Offset(offset).Limit(limit).Find(&list)
 	if find.Error != nil && find.Error != gorm.ErrRecordNotFound {
 		return nil, find.Error
 	}
@@ -71,8 +71,18 @@ func (a ApiNode) GetPage(where string, vals []interface{}, offset, limit int) ([
 }
 
 // GetByCount 获取有多少条记录
-func (a ApiNode) GetByCount(whereSql string, vals []interface{}) (count int64) {
+func (a ApiNode) GetByCount(whereSql string, values []interface{}) (count int64) {
 	n := business.Node{}
-	databases.DB.Model(&n).Where(whereSql, vals...).Count(&count)
+	databases.DB.Model(&n).Where(whereSql, values...).Count(&count)
 	return
+}
+
+// GetDetail 获取单条记录
+func (a ApiNode) GetDetail(id int64) *business.Node {
+	n := business.Node{}
+	err := databases.DB.Model(&n).Where("id = ?", id).First(&n).Error
+	if err != nil {
+		return nil
+	}
+	return &n
 }

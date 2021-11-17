@@ -28,7 +28,7 @@ type Domains struct {
 	ResponseTime int    `gorm:"size:1; not null" form:"response_time" json:"response_time"`  // 响应时间
 	Status       int    `gorm:"type:tinyint(1);not null" json:"status"`                      // 域名状态
 	DetectName   string `gorm:"size:255; not null" form:"detect_name" json:"detect_name"`    // 检测的连接
-	Nodes        []Node `gorm:"foreignKey:id;references:Nodes"`
+	Nodes        []Node `gorm:"many2many:domains_node;"`
 	//DomainName string `gorm:"size:255; unique_index;not null;" validate:"min=3,max=32" json:"domain_name"` // 域名 唯一索引
 
 }
