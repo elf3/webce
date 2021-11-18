@@ -25,7 +25,7 @@ type Domains struct {
 	Method       int    `gorm:"size:1; not null" form:"method" json:"method"`                // 请求方法
 	RequestBody  string `gorm:"type:text; not null" form:"request_body" json:"request_body"` // 请求主体
 	Url          string `gorm:"size:255; not null" form:"url" json:"url"`                    // 检测的连接
-	ResponseTime int    `gorm:"size:1; not null" form:"response_time" json:"response_time"`  // 响应时间
+	ResponseTime int    `gorm:"size:1; not null" form:"response_time" json:"response_time"`  // 响应时间控制报警
 	Status       int    `gorm:"type:tinyint(1);not null" json:"status"`                      // 域名状态
 	DetectName   string `gorm:"size:255; not null" form:"detect_name" json:"detect_name"`    // 检测的连接
 	Nodes        []Node `gorm:"many2many:domains_node;"`
