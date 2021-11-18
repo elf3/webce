@@ -15,7 +15,7 @@ func main() {
 	fmt.Println("  Proto      :", resp.Proto())
 	fmt.Println("  Time       :", resp.Time())
 	fmt.Println("  Received At:", resp.ReceivedAt())
-	fmt.Println("  Body       :\n", resp)
+	//fmt.Println("  Body       :\n", resp)
 	fmt.Println("Request Trace Info:")
 	ti := resp.Request.TraceInfo()
 	fmt.Println("  DNSLookup     :", ti.DNSLookup)
