@@ -15,9 +15,11 @@ var models = []interface{}{
 	&roles.Roles{},
 	&business.Domains{},
 	&business.Node{},
+	&business.Region{},
+	&business.DomainsLog{},
 }
 
-// 数据自动填充
+// AutoMigrate 数据自动填充
 func AutoMigrate() {
 	db := databases.GetDB()
 	// 自动创建数据库

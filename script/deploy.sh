@@ -39,11 +39,12 @@ function buildApps() {
     echo "===> Building $APP..."
     echo ""
     rm -fr $APP
-    go build -o $APP cmd/$APP/main.go
+    go build -ldflags="-s -w" -o $APP cmd/$APP/main.go
     if [ $? -ne 0 ]; then
       echo "Error building $APP"
       exit 1
     fi
+    upx -9 $APP
   done
 }
 
